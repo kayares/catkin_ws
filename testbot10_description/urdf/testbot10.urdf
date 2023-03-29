@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="testbot10">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.0168832826289113 1.11478384567931E-06 -0.0261416150645145"
+        rpy="0 0 0" />
+      <mass
+        value="0.281603655205748" />
+      <inertia
+        ixx="9.51150075877957E-05"
+        ixy="-1.64267680535308E-09"
+        ixz="1.0622976689257E-06"
+        iyy="0.000134448579197141"
+        iyz="-8.02833303120214E-09"
+        izz="0.000133906180321169" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+<!-- <link name="world"/>
+  <joint name="fixed" type="fixed">
+  <origin xyz="0 0 1" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint> -->
+  <link
+    name="RL_link1">
+    <inertial>
+      <origin
+        xyz="0.00677455665314142 -0.0171132386036875 -0.0056395200849706"
+        rpy="0 0 0" />
+      <mass
+        value="0.036163238240597" />
+      <inertia
+        ixx="5.42465986079098E-05"
+        ixy="-1.61368380737824E-11"
+        ixz="2.39357304715321E-18"
+        iyy="9.66378632488695E-06"
+        iyz="-2.15975445072556E-07"
+        izz="5.67806515256347E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RL_j1"
+    type="revolute">
+    <origin
+      xyz="0 0.051775 -0.054172"
+      rpy="0 0 -1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="RL_link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="RL_link2">
+    <inertial>
+      <origin
+        xyz="0.000145288714112013 0.0175227430541512 0.0507591650070363"
+        rpy="0 0 0" />
+      <mass
+        value="0.199136941521453" />
+      <inertia
+        ixx="7.9421953081219E-05"
+        ixy="-1.06064116490362E-06"
+        ixz="-4.62259007366841E-09"
+        iyy="4.77173071542946E-05"
+        iyz="-1.04163237345943E-06"
+        izz="8.02433026576024E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RL_j2"
+    type="revolute">
+    <origin
+      xyz="0.0068746 -0.0682 -0.030468"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="RL_link1" />
+    <child
+      link="RL_link2" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="RL_link3">
+    <inertial>
+      <origin
+        xyz="0.0702582832318915 -0.00864650919675214 0.0235786082623353"
+        rpy="0 0 0" />
+      <mass
+        value="0.0264467686387559" />
+      <inertia
+        ixx="1.76008022350531E-05"
+        ixy="1.98588625172222E-06"
+        ixz="9.44111245553121E-19"
+        iyy="4.19724199033561E-05"
+        iyz="2.03433491128841E-19"
+        izz="3.31231401280413E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RL_j3"
+    type="revolute">
+    <origin
+      xyz="0.020925 0.036241 0.07293"
+      rpy="-1.5708 0 1.5708" />
+    <parent
+      link="RL_link2" />
+    <child
+      link="RL_link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="RL_link4">
+    <inertial>
+      <origin
+        xyz="-0.0304249664645235 0.0121642606893708 0.0209170204137781"
+        rpy="0 0 0" />
+      <mass
+        value="0.148800494600385" />
+      <inertia
+        ixx="7.26973251374853E-05"
+        ixy="-1.14266049925035E-05"
+        ixz="1.08105188921988E-06"
+        iyy="0.000125674560771786"
+        iyz="-4.62876984564198E-07"
+        izz="9.73289824699956E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RL_j4"
+    type="revolute">
+    <origin
+      xyz="0.136292817220622 0 0"
+      rpy="0.00555939283246736 0 3.14159265358979" />
+    <parent
+      link="RL_link3" />
+    <child
+      link="RL_link4" />
+    <axis
+      xyz="0 0.00555936419529654 0.999984546615469" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="RL_link5">
+    <inertial>
+      <origin
+        xyz="0.018486364793432 0.0220241422062936 0.0258807043313478"
+        rpy="0 0 0" />
+      <mass
+        value="0.199136941521453" />
+      <inertia
+        ixx="4.77173071542947E-05"
+        ixy="-1.0389866930085E-06"
+        ixz="-1.0697468440587E-06"
+        iyy="8.02432258745892E-05"
+        iyz="9.18841518505544E-09"
+        izz="7.9422029864232E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RL_j5"
+    type="revolute">
+    <origin
+      xyz="-0.11159 -2.7656E-05 -0.0049745"
+      rpy="0 0 3.1416" />
+    <parent
+      link="RL_link4" />
+    <child
+      link="RL_link5" />
+    <axis
+      xyz="0 -0.0055594 0.99998" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="RL_link6">
+    <inertial>
+      <origin
+        xyz="0.0313843745102667 0.0101684393649126 0.0574146730755681"
+        rpy="0 0 0" />
+      <mass
+        value="0.110140418970304" />
+      <inertia
+        ixx="0.000244915284087814"
+        ixy="-2.38271965882484E-10"
+        ixz="-1.56767941324337E-10"
+        iyy="0.000183605675690306"
+        iyz="6.5689199975025E-07"
+        izz="6.94959211072831E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/RL_link6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RL_j6"
+    type="revolute">
+    <origin
+      xyz="0.03593 0.072785 0.026305"
+      rpy="1.5708 0 0" />
+    <parent
+      link="RL_link5" />
+    <child
+      link="RL_link6" />
+    <axis
+      xyz="0 0.0055594 -0.99998" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="LL_link1">
+    <inertial>
+      <origin
+        xyz="1.66977542903624E-13 -0.0171134562696078 -0.0078112966258107"
+        rpy="0 0 0" />
+      <mass
+        value="0.0361632382405999" />
+      <inertia
+        ixx="5.42465986079154E-05"
+        ixy="-1.61368372102257E-11"
+        ixz="2.26866815427224E-18"
+        iyy="9.66378632488791E-06"
+        iyz="-2.15975445070927E-07"
+        izz="5.67806515256394E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_j1"
+    type="revolute">
+    <origin
+      xyz="0 -0.045 -0.052"
+      rpy="0 0 -1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="LL_link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="LL_link2">
+    <inertial>
+      <origin
+        xyz="-0.000255232783638704 0.0175227430541507 0.0507623178829572"
+        rpy="0 0 0" />
+      <mass
+        value="0.199136941521453" />
+      <inertia
+        ixx="7.94219530812189E-05"
+        ixy="1.06395420931126E-06"
+        ixz="-4.62259007354437E-09"
+        iyy="4.77173071542947E-05"
+        iyz="-1.04491774756739E-06"
+        izz="8.02433026576024E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_j2"
+    type="revolute">
+    <origin
+      xyz="0.0001 -0.0682 -0.03264"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="LL_link1" />
+    <child
+      link="LL_link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="LL_link3">
+    <inertial>
+      <origin
+        xyz="0.0704311049281126 -0.00863777375409747 -0.0285531649153121"
+        rpy="0 0 0" />
+      <mass
+        value="0.0264467686387567" />
+      <inertia
+        ixx="1.76003222508723E-05"
+        ixy="1.98293872407723E-06"
+        ixz="-1.07814244683159E-18"
+        iyy="4.19728998875406E-05"
+        iyz="3.18616737065625E-19"
+        izz="3.31231401280443E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_j3"
+    type="revolute">
+    <origin
+      xyz="-0.0261 0.03607 0.07293"
+      rpy="-1.5708 0 1.5708" />
+    <parent
+      link="LL_link2" />
+    <child
+      link="LL_link3" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="LL_link4">
+    <inertial>
+      <origin
+        xyz="0.030599403100887 -0.0118955420385439 -0.0260254257771546"
+        rpy="0 0 0" />
+      <mass
+        value="0.148800494499737" />
+      <inertia
+        ixx="7.27018871409381E-05"
+        ixy="-1.14415818229065E-05"
+        ixz="9.55231251879924E-07"
+        iyy="0.000125676736750434"
+        iyz="-1.4311744773575E-07"
+        izz="9.73222443651326E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_j4"
+    type="revolute">
+    <origin
+      xyz="0.13629 1.6483E-05 0"
+      rpy="-0.0055594 0 0" />
+    <parent
+      link="LL_link3" />
+    <child
+      link="LL_link4" />
+    <axis
+      xyz="0 0.0055594 -0.99998" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="LL_link5">
+    <inertial>
+      <origin
+        xyz="0.0184053379148842 0.0222981753233199 -0.025718048095948"
+        rpy="0 0 0" />
+      <mass
+        value="0.199136941521452" />
+      <inertia
+        ixx="4.77173071542945E-05"
+        ixy="-1.04751276171685E-06"
+        ixz="1.054833966262E-06"
+        iyy="8.02432258745888E-05"
+        iyz="9.18841518502454E-09"
+        izz="7.94220298642311E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_j5"
+    type="revolute">
+    <origin
+      xyz="0.11176 1.3517E-05 0"
+      rpy="0 0 0" />
+    <parent
+      link="LL_link4" />
+    <child
+      link="LL_link5" />
+    <axis
+      xyz="0 0.0055594 -0.99998" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+  <link
+    name="LL_link6">
+    <inertial>
+      <origin
+        xyz="0.0315143745098138 -0.0572991776034554 -0.0106061822036878"
+        rpy="0 0 0" />
+      <mass
+        value="0.110140418970306" />
+      <inertia
+        ixx="0.000244915284087816"
+        ixy="1.54109010866323E-10"
+        ixz="2.40000271001321E-10"
+        iyy="6.94954210715023E-05"
+        iyz="-6.11921695467504E-07"
+        izz="0.000183606175726089" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.501960784313725 0.501960784313725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://testbot10_description/meshes/LL_link6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_j6"
+    type="revolute">
+    <origin
+      xyz="0.0358 0.073044 -0.025694"
+      rpy="0 0 0" />
+    <parent
+      link="LL_link5" />
+    <child
+      link="LL_link6" />
+    <axis
+      xyz="0 -0.99998 -0.0055594" />
+    <limit
+      lower="-3.13"
+      upper="3.13"
+      effort="0"
+      velocity="0" />
+    <dynamics
+      friction="0" />
+  </joint>
+
+</robot>
