@@ -86,6 +86,7 @@ namespace gazebo
     ref_RL_th = motion.Return_Motion2_RL();
     std::cout << "ref_RL_th" << ref_RL_th << std::endl;
 }
+// Set joint position
   void testbot10::SetJointPosition()
   {
     RL_j1->SetPosition(0, RL_th(0));
