@@ -160,7 +160,7 @@ void testbot10::PositionCallback(const std_msgs::Float32Ptr &msg)
 void testbot10::PostureGeneration()
  {
     time +=1;
-    if (time>=30){
+    if (time>=3){
     RL_th(0) = ref_RL_th(indext, 0);
     RL_th(1) = ref_RL_th(indext, 1);
     RL_th(2) = ref_RL_th(indext, 2);
