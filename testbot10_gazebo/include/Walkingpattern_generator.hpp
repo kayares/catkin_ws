@@ -103,6 +103,10 @@ public:
     MatrixXd LF_ysimulation_leftwalk();
     MatrixXd RF_zsimulation_leftwalk();
     MatrixXd LF_zsimulation_leftwalk();
+    MatrixXd RF_ysimulation_rightwalk();
+    MatrixXd LF_ysimulation_rightwalk();
+    MatrixXd RF_zsimulation_rightwalk();
+    MatrixXd LF_zsimulation_rightwalk();
 
 };
 class BRP_Inverse_Kinematics
@@ -116,7 +120,7 @@ private:
     double L5 = 35.80;
     double L6 = 35.59;
 
-    double FW = 92.8; //�߹ٴ� �ʺ�
+    double FW = 92.8; 
     double FL = 137.8;
     double RL_th[6] = { 0.,0.,0.,0.,0.,0. }, LL_th[6] = { 0.,0.,0.,0.,0.,0. };
     double RL_th_IK[6] = { 0.,0.,0.,0.,0.,0. }, LL_th_IK[6] = { 0.,0.,0.,0.,0.,0. };
@@ -137,16 +141,35 @@ public:
 };
 class Motions {
 private:
+
+    MatrixXd Motion0_RL;
+    MatrixXd Motion0_LL;
     MatrixXd Motion1_RL;
     MatrixXd Motion1_LL;
     MatrixXd Motion2_RL;
     MatrixXd Motion2_LL;
+    MatrixXd Motion3_RL;
+    MatrixXd Motion3_LL;
+    MatrixXd Motion4_RL;
+    MatrixXd Motion4_LL;
+    double L0 = 0.04225;
+
 public:
+
     Motions();
+    void Motion0();
     void Motion1();//striaght walk 4 step
     void Motion2();//leftwalk 4step
+    void Motion3();//step in place
+    void Motion4();//rightwalk 4step
+    MatrixXd Return_Motion0_RL();
+    MatrixXd Return_Motion0_LL();
     MatrixXd Return_Motion1_RL();
     MatrixXd Return_Motion1_LL();
     MatrixXd Return_Motion2_RL();
     MatrixXd Return_Motion2_LL();
+    MatrixXd Return_Motion3_LL();
+    MatrixXd Return_Motion3_RL();
+    MatrixXd Return_Motion4_LL();
+    MatrixXd Return_Motion4_RL();
 };

@@ -7,7 +7,7 @@
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
-#include <boost/bind.hpp>
+#include <gazebo/sensors/sensors.hh>
 
 #include <string.h>
 #include <iostream>
@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <ros/ros.h>
+#include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Quaternion.h>
 #include <std_msgs/Int32.h>
 #include <std_msgs/Int8.h>
@@ -67,13 +68,21 @@ namespace gazebo
         ConnectionPtr updateConnection;
         ros::NodeHandle n;
         ros::Subscriber sub;
+        ros::Subscriber sub_motion_selector;
+        ros::Publisher pub_joint_state;
         int time;
         int indext; 
+        float angle;
+        float mode = 0;
         VectorXd RL_th = VectorXd::Zero(6);
         VectorXd LL_th = VectorXd::Zero(6);
         MatrixXd ref_RL_th;
         MatrixXd ref_LL_th;
+        VectorXd sensor_th = VectorXd::Zero(12);
+        VectorXd turn = VectorXd::Zero(6);
+        VectorXd back = VectorXd::Zero(6);
 
+        const std::vector<std::string> joint_names = {"RLjoint1", "RLjoint2", "RLjoint3", "RLjoint4", "RLjoint5", "RLjoint6", "LLjoint1", "LLjoint2", "LLjoint3", "LLjoint4", "LLjoint5", "LLjoint6"};
         // common::Time last_update_time;
         // common::Time current_time;
         // event::ConnectionPtr update_connection;
@@ -95,13 +104,23 @@ namespace gazebo
         void Load(ModelPtr _model, sdf::ElementPtr);
         void GetLinks();
         void GetJoints();
+        void IdleMotion();
+        void GetJointPosition();
+        void InitROSPubSetting();
+        void ROSMsgPublish();
 
         void SetJointPosition();
+        void PostureGeneration();
         void OnUpdate(const common::UpdateInfo &);
         void PositionCallback(const std_msgs::Float32Ptr &msg);
-        void SelectMotion();
+        void SelectMotion(const std_msgs::Float32Ptr &msg);
+        void TurningTrajectory();
+        double Turn(double t);
+        double Back(double t);
+
 };
 GZ_REGISTER_MODEL_PLUGIN(testbot10);
-    }
+    
+}
 
 #endif

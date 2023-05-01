@@ -7,80 +7,80 @@ using namespace std;
 
 Com::Com()
 {
-    walkfreq = 1.6227;
-    walktime = 1 / walkfreq;
-    stride = 0.1;
-    freq = 300;
-    del_t = 1 / freq;
-    z_c = 0.30574;
-    g = 9.81;
-    T_prev = 1.5;
-    NL = T_prev * freq;
-    A << 1, del_t, del_t* del_t / 2,
-        0, 1, del_t,
-        0, 0, 1;
-    B << del_t * del_t * del_t / 6, del_t* del_t / 2, del_t;
-    C << 1, 0, -z_c / g;
-    Qe = 1;
-    Qx = Matrix3d::Zero();
-    Q_p = Matrix4d::Zero();
-    Q_p << Qe, 0, 0, 0,
-        0, Qx(0, 0), Qx(0, 1), Qx(0, 2),
-        0, Qx(1, 0), Qx(1, 1), Qx(1, 2),
-        0, Qx(2, 0), Qx(2, 1), Qx(2, 2);
-    R << pow(10, -6);
-    I_p << 1, 0, 0, 0;
+	walkfreq = 1.6227;
+	walktime = 1 / walkfreq;
+	stride = 0.1;
+	freq = 300;
+	del_t = 1 / freq;
+	z_c = 0.30574;
+	g = 9.81;
+	T_prev = 1.5;
+	NL = T_prev * freq;
+	A << 1, del_t, del_t* del_t / 2,
+		0, 1, del_t,
+		0, 0, 1;
+	B << del_t * del_t * del_t / 6, del_t* del_t / 2, del_t;
+	C << 1, 0, -z_c / g;
+	Qe = 1;
+	Qx = Matrix3d::Zero();
+	Q_p = Matrix4d::Zero();
+	Q_p << Qe, 0, 0, 0,
+		0, Qx(0, 0), Qx(0, 1), Qx(0, 2),
+		0, Qx(1, 0), Qx(1, 1), Qx(1, 2),
+		0, Qx(2, 0), Qx(2, 1), Qx(2, 2);
+	R << pow(10, -6);
+	I_p << 1, 0, 0, 0;
 
-    B_p.row(0) = C * B;
-    B_p.row(1) = B.row(0);
-    B_p.row(2) = B.row(1);
-    B_p.row(3) = B.row(2);
+	B_p.row(0) = C * B;
+	B_p.row(1) = B.row(0);
+	B_p.row(2) = B.row(1);
+	B_p.row(3) = B.row(2);
 
-    F_p.row(0) = C * A;
-    F_p.row(1) = A.row(0);
-    F_p.row(2) = A.row(1);
-    F_p.row(3) = A.row(2);
+	F_p.row(0) = C * A;
+	F_p.row(1) = A.row(0);
+	F_p.row(2) = A.row(1);
+	F_p.row(3) = A.row(2);
 
-    A_p = Matrix4d::Identity();
-    A_p.block<4, 3>(0, 1) = F_p;
+	A_p = Matrix4d::Identity();
+	A_p.block<4, 3>(0, 1) = F_p;
 
-    K_p << 110.363460414711, 6034.86496714319, 1076.80352169085, 2.01775079671134,
-        6034.86496714319, 342987.524401704, 61270.9711600453, 127.336198224114,
-        1076.80352169085, 61270.9711600453, 10946.3918902541, 22.9290015536304,
-        2.01775079671134, 127.336198224114, 22.9290015536304, 0.0810538784050024;
+	K_p << 110.363460414711, 6034.86496714319, 1076.80352169085, 2.01775079671134,
+		6034.86496714319, 342987.524401704, 61270.9711600453, 127.336198224114,
+		1076.80352169085, 61270.9711600453, 10946.3918902541, 22.9290015536304,
+		2.01775079671134, 127.336198224114, 22.9290015536304, 0.0810538784050024;
 
-    Gi = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * I_p;
-    Gx = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * F_p;
-    Ac_p = A_p - B_p * (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * A_p;
+	Gi = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * I_p;
+	Gx = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * F_p;
+	Ac_p = A_p - B_p * (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * A_p;
 };
 
 MatrixXd Com::PreviewGd()
 {
-    MatrixXd Gd(NL, 1);
-    for (int l = 0; l < NL; l++) {
+	MatrixXd Gd(NL, 1);
+	for (int l = 0; l < NL; l++) {
 
-        Matrix4d temp = Ac_p.transpose();
-        for (int i = 1; i < l; i++) {
-            temp = temp * Ac_p.transpose();
-        }
-        Gd(l, 0) = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * temp * K_p * I_p;
-        if (l == 0)
-            Gd(l, 0) = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * I_p;
-    }
-    this->Gd = Gd;
-    return Gd;
+		Matrix4d temp = Ac_p.transpose();
+		for (int i = 1; i < l; i++) {
+			temp = temp * Ac_p.transpose();
+		}
+		Gd(l, 0) = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * temp * K_p * I_p;
+		if (l == 0)
+			Gd(l, 0) = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * I_p;
+	}
+	this->Gd = Gd;
+	return Gd;
 };
 
 void Com::ShowGd()
 {
-    cout << Gd;
+	cout << Gd;
 };
 
 X_Com::X_Com() {
-    sim_time = 5 * walktime;
-    sim_n = sim_time * freq;
-    zmp_err_int = 0;
-    u_prev = 0;
+	sim_time = 5 * walktime;
+	sim_n = sim_time * freq;
+	zmp_err_int = 0;
+	u_prev = 0;
 };
 
 void X_Com::Change_Ref_Xpos(double a, double b, double c, double d, double e, double f) {
@@ -93,75 +93,75 @@ void X_Com::Change_Ref_Xpos(double a, double b, double c, double d, double e, do
 };
 
 MatrixXd X_Com::XComSimulation() {
-    PreviewGd();
-    RowVectorXd zmp_ref(sim_n); //�������
-    for (int i = 0; i < sim_n; i++) {
-        double time = i * del_t;
-        if (time < 1.5 * walktime) {
-            zmp_ref[i] = Ref_Xpos[0];
-        }
-        else if (time < 2 * walktime) {
-            zmp_ref[i] = Ref_Xpos[1];
-        }
-        else if (time < 2.5 * walktime) {
-            zmp_ref[i] = Ref_Xpos[2];
-        }
-        else if (time < 3 * walktime) {
-            zmp_ref[i] = Ref_Xpos[3];
-        }
-        else if (time < 3.5 * walktime) {
-            zmp_ref[i] = Ref_Xpos[4];
-        }
-        else if (time < 4 * walktime) {
-            zmp_ref[i] = Ref_Xpos[5];
-        }
-        else
-            zmp_ref[i] = Ref_Xpos[5];
-    }
-    RowVectorXd zmp_ref_fifo(NL);
-    RowVectorXd u(sim_n);
-    RowVectorXd zmp(sim_n);
-    RowVectorXd zmp_ref_final(sim_n);
-    RowVectorXd CP(sim_n);
-    MatrixXd XCom(3, sim_n + 1);
-    XCom = MatrixXd::Zero(3, sim_n + 1);
-    double w = sqrt(g / z_c);
-    for (int i = 0; i < sim_n; i++) {
-        for (int j = 0; j < NL; j++) {
-            if (i + j < sim_n) {
-                zmp_ref_fifo[j] = zmp_ref[i + j];
-            }
-            else {
-                zmp_ref_fifo[j] = zmp_ref[sim_n - 1];
-            }
-        }
-        u_prev = 0;
-        for (int j = 0; j < NL; j++) {
-            u_prev += Gd(j, 0) * zmp_ref_fifo[j];
-        }
-        u[i] = Gi * zmp_err_int - Gx * XCom.col(i) + u_prev;
+	PreviewGd();
+	RowVectorXd zmp_ref(sim_n); 
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+		if (time < 1.5 * walktime) {
+			zmp_ref[i] = Ref_Xpos[0];
+		}
+		else if (time < 2 * walktime) {
+			zmp_ref[i] = Ref_Xpos[1];
+		}
+		else if (time < 2.5 * walktime) {
+			zmp_ref[i] = Ref_Xpos[2];
+		}
+		else if (time < 3 * walktime) {
+			zmp_ref[i] = Ref_Xpos[3];
+		}
+		else if (time < 3.5 * walktime) {
+			zmp_ref[i] = Ref_Xpos[4];
+		}
+		else if (time < 4 * walktime) {
+			zmp_ref[i] = Ref_Xpos[5];
+		}
+		else
+			zmp_ref[i] = Ref_Xpos[5];
+	}
+	RowVectorXd zmp_ref_fifo(NL);
+	RowVectorXd u(sim_n);
+	RowVectorXd zmp(sim_n);
+	RowVectorXd zmp_ref_final(sim_n);
+	RowVectorXd CP(sim_n);
+	MatrixXd XCom(3, sim_n + 1);
+	XCom = MatrixXd::Zero(3, sim_n + 1);
+	double w = sqrt(g / z_c);
+	for (int i = 0; i < sim_n; i++) {
+		for (int j = 0; j < NL; j++) {
+			if (i + j < sim_n) {
+				zmp_ref_fifo[j] = zmp_ref[i + j];
+			}
+			else {
+				zmp_ref_fifo[j] = zmp_ref[sim_n - 1];
+			}
+		}
+		u_prev = 0;
+		for (int j = 0; j < NL; j++) {
+			u_prev += Gd(j, 0) * zmp_ref_fifo[j];
+		}
+		u[i] = Gi * zmp_err_int - Gx * XCom.col(i) + u_prev;
 
-        XCom.col(i + 1) = A * XCom.col(i) + B * u[i];
+		XCom.col(i + 1) = A * XCom.col(i) + B * u[i];
 
-        zmp[i] = C * XCom.col(i);
+		zmp[i] = C * XCom.col(i);
 
-        zmp_err_int += (zmp_ref[i] - zmp[i]);
+		zmp_err_int += (zmp_ref[i] - zmp[i]);
 
-        CP[i] = XCom(0, i) + 1 / w * XCom(1, i);
+		CP[i] = XCom(0, i) + 1 / w * XCom(1, i);
 
-        zmp_ref_final[i] = zmp_ref[i];
+		zmp_ref_final[i] = zmp_ref[i];
 
-    }
-    this->XCom = XCom;
-    return XCom;
+	}
+	this->XCom = XCom;
+	return XCom;
 };
 
 Y_Com::Y_Com()
 {
-    sim_time = 5 * walktime;
-    sim_n = sim_time * freq;
-    zmp_err_int = 0;
-    u_prev = 0;
+	sim_time = 5 * walktime;
+	sim_n = sim_time * freq;
+	zmp_err_int = 0;
+	u_prev = 0;
 }
 
 void Y_Com::Change_Ref_Ypos(double a, double b, double c, double d, double e, double f) {
@@ -173,81 +173,78 @@ void Y_Com::Change_Ref_Ypos(double a, double b, double c, double d, double e, do
 	this->Ref_Ypos[5] = f;
 }
 
-
 MatrixXd Y_Com::YComSimulation() {
-    PreviewGd();
-    RowVectorXd zmp_ref(sim_n); //�������
-    for (int i = 0; i < sim_n; i++) {
-        double time = i * del_t;
-        if (time < 1.5 * walktime) {
-            zmp_ref[i] = Ref_Ypos[0];
-        }
-        else if (time < 2 * walktime) {
-            zmp_ref[i] = Ref_Ypos[1];
-        }
-        else if (time < 2.5 * walktime) {
-            zmp_ref[i] = Ref_Ypos[2];
-        }
-        else if (time < 3 * walktime) {
-            zmp_ref[i] = Ref_Ypos[3];
-        }
-        else if (time < 3.5 * walktime) {
-            zmp_ref[i] = Ref_Ypos[4];
-        }
-        else if (time < 4 * walktime) {
-            zmp_ref[i] = Ref_Ypos[5];
-        }
-        else
-			zmp_ref[i] = 0;
-    }
-    RowVectorXd zmp_ref_fifo(NL);
-    RowVectorXd u(sim_n);
-    RowVectorXd zmp(sim_n);
-    RowVectorXd zmp_ref_final(sim_n);
-    RowVectorXd CP(sim_n);
-    MatrixXd YCom(3, sim_n + 1);
-    YCom = MatrixXd::Zero(3, sim_n + 1);
-    double w = sqrt(g / z_c);
-    for (int i = 0; i < sim_n; i++) {
-        for (int j = 0; j < NL; j++) {
-            if (i + j < sim_n) {
-                zmp_ref_fifo[j] = zmp_ref[i + j];
-            }
-            else {
-                zmp_ref_fifo[j] = zmp_ref[sim_n - 1];
-            }
-        }
-        u_prev = 0;
-        for (int j = 0; j < NL; j++) {
-            u_prev += Gd(j, 0) * zmp_ref_fifo[j];
-        }
-        u[i] = Gi * zmp_err_int - Gx * YCom.col(i) + u_prev;
+	PreviewGd();
+	RowVectorXd zmp_ref(sim_n);
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+		if (time < 1.5 * walktime) {
+			zmp_ref[i] = Ref_Ypos[0];
+		}
+		else if (time < 2 * walktime) {
+			zmp_ref[i] = Ref_Ypos[1];
+		}
+		else if (time < 2.5 * walktime) {
+			zmp_ref[i] = Ref_Ypos[2];
+		}
+		else if (time < 3 * walktime) {
+			zmp_ref[i] = Ref_Ypos[3];
+		}
+		else if (time < 3.5 * walktime) {
+			zmp_ref[i] = Ref_Ypos[4];
+		}
+		else if (time < 4 * walktime) {
+			zmp_ref[i] = Ref_Ypos[5];
+		}
+		else
+			zmp_ref[i] = Ref_Ypos[5];
+	}
+	RowVectorXd zmp_ref_fifo(NL);
+	RowVectorXd u(sim_n);
+	RowVectorXd zmp(sim_n);
+	RowVectorXd zmp_ref_final(sim_n);
+	RowVectorXd CP(sim_n);
+	MatrixXd YCom(3, sim_n + 1);
+	YCom = MatrixXd::Zero(3, sim_n + 1);
+	double w = sqrt(g / z_c);
+	for (int i = 0; i < sim_n; i++) {
+		for (int j = 0; j < NL; j++) {
+			if (i + j < sim_n) {
+				zmp_ref_fifo[j] = zmp_ref[i + j];
+			}
+			else {
+				zmp_ref_fifo[j] = zmp_ref[sim_n - 1];
+			}
+		}
+		u_prev = 0;
+		for (int j = 0; j < NL; j++) {
+			u_prev += Gd(j, 0) * zmp_ref_fifo[j];
+		}
+		u[i] = Gi * zmp_err_int - Gx * YCom.col(i) + u_prev;
 
-        YCom.col(i + 1) = A * YCom.col(i) + B * u[i];
+		YCom.col(i + 1) = A * YCom.col(i) + B * u[i];
 
-        zmp[i] = C * YCom.col(i);
+		zmp[i] = C * YCom.col(i);
 
-        zmp_err_int += (zmp_ref[i] - zmp[i]);
+		zmp_err_int += (zmp_ref[i] - zmp[i]);
 
-        CP[i] = YCom(0, i) + 1 / w * YCom(1, i);
+		CP[i] = YCom(0, i) + 1 / w * YCom(1, i);
 
-        zmp_ref_final[i] = zmp_ref[i];
+		zmp_ref_final[i] = zmp_ref[i];
 
-    }
-    this->YCom = YCom;
-    return YCom;
+	}
+	this->YCom = YCom;
+	return YCom;
 }
 
-
 Foot::Foot() {
-    walkfreq = 1.6227;
-    walktime = 1 / walkfreq;
-    step = 0.1;
-    freq = 300;
-    XStep << 0, 0, 0, 0, 0, 0;
-    XStride << 0, 0, 0, 0, 0, 0;
+	walkfreq = 1.6227;
+	walktime = 1 / walkfreq;
+	step = 0.1;
+	freq = 300;
+	XStep << 0, 0, 0, 0, 0, 0;
+	XStride << 0, 0, 0, 0, 0, 0;
 };
-
 
 void Foot::Change_step(double a) {
 	this->step = a;
@@ -255,101 +252,188 @@ void Foot::Change_step(double a) {
 
 MatrixXd Foot::Equation_solver(double t0, double t1, double start, double end)
 {
-    Matrix<double, 6, 6> A;
-    Matrix<double, 6, 1> B;
-    Matrix<double, 6, 1> X;
-    A << 1, t0, pow(t0, 2), pow(t0, 3), pow(t0, 4), pow(t0, 5),
-        0, 1, 2 * t0, 3 * pow(t0, 2), 4 * pow(t0, 3), 5 * pow(t0, 4),
-        0, 0, 2, 6 * t0, 12 * pow(t0, 2), 20 * pow(t0, 3),
-        1, t1, pow(t1, 2), pow(t1, 3), pow(t1, 4), pow(t1, 5),
-        0, 1, 2 * t1, 3 * pow(t1, 2), 4 * pow(t1, 3), 5 * pow(t1, 4),
-        0, 0, 2, 6 * t1, 12 * pow(t1, 2), 20 * pow(t1, 3);
-    B << start, 0, 0, end, 0, 0;
-    X = A.colPivHouseholderQr().solve(B);
-    return X;
+	Matrix<double, 6, 6> A;
+	Matrix<double, 6, 1> B;
+	Matrix<double, 6, 1> X;
+	A << 1, t0, pow(t0, 2), pow(t0, 3), pow(t0, 4), pow(t0, 5),
+		0, 1, 2 * t0, 3 * pow(t0, 2), 4 * pow(t0, 3), 5 * pow(t0, 4),
+		0, 0, 2, 6 * t0, 12 * pow(t0, 2), 20 * pow(t0, 3),
+		1, t1, pow(t1, 2), pow(t1, 3), pow(t1, 4), pow(t1, 5),
+		0, 1, 2 * t1, 3 * pow(t1, 2), 4 * pow(t1, 3), 5 * pow(t1, 4),
+		0, 0, 2, 6 * t1, 12 * pow(t1, 2), 20 * pow(t1, 3);
+	B << start, 0, 0, end, 0, 0;
+	X = A.colPivHouseholderQr().solve(B);
+	return X;
 };
 
 double Foot::Step(double t)
 {
-    double X = XStep(0) + XStep(1) * t + XStep(2) * pow(t, 2) + XStep(3) * pow(t, 3) + XStep(4) * pow(t, 4) + XStep(5) * pow(t, 5);
-    return X;
+	double X = XStep(0) + XStep(1) * t + XStep(2) * pow(t, 2) + XStep(3) * pow(t, 3) + XStep(4) * pow(t, 4) + XStep(5) * pow(t, 5);
+	return X;
 };
 
 double Foot::Stride(double t)
 {
-    double X = XStride(0) + XStride(1) * t + XStride(2) * pow(t, 2) + XStride(3) * pow(t, 3) + XStride(4) * pow(t, 4) + XStride(5) * pow(t, 5);
-    return X;
+	double X = XStride(0) + XStride(1) * t + XStride(2) * pow(t, 2) + XStride(3) * pow(t, 3) + XStride(4) * pow(t, 4) + XStride(5) * pow(t, 5);
+	return X;
 };
 
 MatrixXd Foot::RF_xsimulation_straightwalk()
 {
-    this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
-    this->XStride = Equation_solver(0, walktime * 0.3, 0, 2 * step);
-    int sim_n = 5 * walktime * freq;
-    double del_t = 1 / freq;
-    RowVectorXd Footpos(sim_n); //�������
-    for (int i = 0; i < sim_n; i++) {
-        double time = i * del_t;
-        if (time < 1.1 * walktime) {
-            Footpos[i] = 0;
-        }
-        else if (time < 1.4 * walktime) {
-            Footpos[i] = Step(time - 1.1 * walktime);
-        }
-        else if (time < 2.1 * walktime) {
-            Footpos[i] = step;
-        }
-        else if (time < 2.4 * walktime) {
-            Footpos[i] = Stride(time - 2.1 * walktime) + step;
-        }
-        else if (time < 3.1 * walktime) {
-            Footpos[i] = 3 * step;
-        }
-        else if (time < 3.4 * walktime) {
-            Footpos[i] = Stride(time - 3.1 * walktime) + 3 * step;
-        }
-        else {
-            Footpos[i] = 5 * step;
-        }
-    };
-    return Footpos;
+	this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
+	this->XStride = Equation_solver(0, walktime * 0.3, 0, 2 * step);
+	int sim_n = 5 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); 
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+		if (time < 1.1 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.4 * walktime) {
+			Footpos[i] = Step(time - 1.1 * walktime);
+		}
+		else if (time < 2.1 * walktime) {
+			Footpos[i] = step;
+		}
+		else if (time < 2.4 * walktime) {
+			Footpos[i] = Stride(time - 2.1 * walktime) + step;
+		}
+		else if (time < 3.1 * walktime) {
+			Footpos[i] = 3 * step;
+		}
+		else if (time < 3.4 * walktime) {
+			Footpos[i] = Stride(time - 3.1 * walktime) + 3 * step;
+		}
+		else {
+			Footpos[i] = 5 * step;
+		}
+	};
+	return Footpos;
 };
 
 MatrixXd Foot::LF_xsimulation_straightwalk() {
-    this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
-    this->XStride = Equation_solver(0, walktime * 0.3, 0, 2 * step);
-    int sim_n = 5 * walktime * freq;
-    double del_t = 1 / freq;
-    RowVectorXd Footpos(sim_n); //�������
-    for (int i = 0; i < sim_n; i++) {
-        double time = i * del_t;
+	this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
+	this->XStride = Equation_solver(0, walktime * 0.3, 0, 2 * step);
+	int sim_n = 5 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); 
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
 
-        if (time < 1.6 * walktime) {
-            Footpos[i] = 0;
-        }
-        else if (time < 1.9 * walktime) {
-            Footpos[i] = Stride(time - 1.6 * walktime);
-        }
-        else if (time < 2.6 * walktime) {
-            Footpos[i] = 2 * step;
-        }
-        else if (time < 2.9 * walktime) {
-            Footpos[i] = Stride(time - 2.6 * walktime) + 2 * step;
-        }
-        else if (time < 3.6 * walktime) {
-            Footpos[i] = 4 * step;
-        }
-        else if (time < 3.9 * walktime) {
-            Footpos[i] = Step(time - 3.6 * walktime) + 4 * step;
-        }
-        else {
-            Footpos[i] = 5 * step;
-        }
-    };
-    return Footpos;
+		if (time < 1.6 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.9 * walktime) {
+			Footpos[i] = Stride(time - 1.6 * walktime);
+		}
+		else if (time < 2.6 * walktime) {
+			Footpos[i] = 2 * step;
+		}
+		else if (time < 2.9 * walktime) {
+			Footpos[i] = Stride(time - 2.6 * walktime) + 2 * step;
+		}
+		else if (time < 3.6 * walktime) {
+			Footpos[i] = 4 * step;
+		}
+		else if (time < 3.9 * walktime) {
+			Footpos[i] = Step(time - 3.6 * walktime) + 4 * step;
+		}
+		else {
+			Footpos[i] = 5 * step;
+		}
+	};
+	return Footpos;
 
 
 }
+
+MatrixXd Foot::RF_zsimulation_straightwalk()
+{
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.01);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.01, 0);
+	int sim_n = 5 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); 
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+
+		if (time < 1.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.25 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.45 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 2.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 2.25 * walktime) {
+			Footpos[i] = Step(time - 2.05 * walktime);
+		}
+		else if (time < 2.45 * walktime) {
+			Footpos[i] = Stride(time - 2.05 * walktime);
+		}
+		else if (time < 3.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.25 * walktime) {
+			Footpos[i] = Step(time - 3.05 * walktime);
+		}
+		else if (time < 3.45 * walktime) {
+			Footpos[i] = Stride(time - 3.05 * walktime);
+		}
+		else {
+			Footpos[i] = 0;
+		}
+	};;
+	return Footpos;
+};
+
+MatrixXd Foot::LF_zsimulation_straightwalk() {
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.01);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.01, 0);
+	int sim_n = 5 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); 
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+
+		if (time < 1.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.75 * walktime) {
+			Footpos[i] = Step(time - 1.55 * walktime);
+		}
+		else if (time < 1.95 * walktime) {
+			Footpos[i] = Stride(time - 1.55 * walktime);
+		}
+		else if (time < 2.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 2.75 * walktime) {
+			Footpos[i] = Step(time - 2.55 * walktime);
+		}
+		else if (time < 2.95 * walktime) {
+			Footpos[i] = Stride(time - 2.55 * walktime);
+		}
+		else if (time < 3.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.75 * walktime) {
+			Footpos[i] = Step(time - 3.55 * walktime);
+		}
+		else if (time < 3.95 * walktime) {
+			Footpos[i] = Stride(time - 3.55 * walktime);
+		}
+		else {
+			Footpos[i] = 0;
+		}
+	};
+	return Footpos;
+};
 
 MatrixXd Foot::RF_ysimulation_leftwalk() {
 	this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
@@ -387,15 +471,15 @@ MatrixXd Foot::LF_ysimulation_leftwalk() {
 	this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
 	int sim_n = 5 * walktime * freq;
 	double del_t = 1 / freq;
-	RowVectorXd Footpos(sim_n); //�������
+	RowVectorXd Footpos(sim_n);
 	for (int i = 0; i < sim_n; i++) {
 		double time = i * del_t;
 
 		if (time < 1.6 * walktime) {
-			Footpos[i] = 0;
+			Footpos[i] = step;
 		}
 		else if (time < 1.9 * walktime) {
-			Footpos[i] = Step(time - 1.6 * walktime);
+			Footpos[i] = Step(time - 1.6 * walktime)+step;
 		}
 		else if (time < 2.6 * walktime) {
 			Footpos[i] = 2 * step;
@@ -404,13 +488,13 @@ MatrixXd Foot::LF_ysimulation_leftwalk() {
 			Footpos[i] = Step(time - 2.6 * walktime) + 2 * step;
 		}
 		else if (time < 3.6 * walktime) {
-			Footpos[i] = 4 * step;
+			Footpos[i] = 3 * step;
 		}
 		else if (time < 3.9 * walktime) {
-			Footpos[i] = Step(time - 3.6 * walktime) + 4 * step;
+			Footpos[i] = 3 * step;
 		}
 		else {
-			Footpos[i] = 5 * step;
+			Footpos[i] = 3 * step;
 		}
 	};
 	return Footpos;
@@ -418,11 +502,11 @@ MatrixXd Foot::LF_ysimulation_leftwalk() {
 }
 
 MatrixXd Foot::RF_zsimulation_leftwalk() {
-	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.01);
-	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.01, 0);
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.02);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.02, 0);
 	int sim_n = 5 * walktime * freq;
 	double del_t = 1 / freq;
-	RowVectorXd Footpos(sim_n); //�������
+	RowVectorXd Footpos(sim_n); 
 	for (int i = 0; i < sim_n; i++) {
 		double time = i * del_t;
 
@@ -461,11 +545,165 @@ MatrixXd Foot::RF_zsimulation_leftwalk() {
 };
 
 MatrixXd Foot::LF_zsimulation_leftwalk() {
-	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.01);
-	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.01, 0);
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.02);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.02, 0);
 	int sim_n = 5 * walktime * freq;
 	double del_t = 1 / freq;
-	RowVectorXd Footpos(sim_n); //�������
+	RowVectorXd Footpos(sim_n); 
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+
+		if (time < 1.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.75 * walktime) {
+			Footpos[i] = Step(time - 1.55 * walktime);
+		}
+		else if (time < 1.95 * walktime) {
+			Footpos[i] = Stride(time - 1.55 * walktime);
+		}
+		else if (time < 2.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 2.75 * walktime) {
+			Footpos[i] = Step(time - 2.55 * walktime);
+		}
+		else if (time < 2.95 * walktime) {
+			Footpos[i] = Stride(time - 2.55 * walktime);
+		}
+		else if (time < 3.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.75 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.95 * walktime) {
+			Footpos[i] = 0;
+		}
+		else {
+			Footpos[i] = 0;
+		}
+	};
+	return Footpos;
+};
+
+MatrixXd Foot::RF_ysimulation_rightwalk() {
+
+	this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
+	int sim_n = 5 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n);
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+
+		if (time < 1.6 * walktime) {
+			Footpos[i] = step;
+		}
+		else if (time < 1.9 * walktime) {
+			Footpos[i] = Step(time - 1.6 * walktime)+step;
+		}
+		else if (time < 2.6 * walktime) {
+			Footpos[i] = 2 * step;
+		}
+		else if (time < 2.9 * walktime) {
+			Footpos[i] = Step(time - 2.6 * walktime) + 2 * step;
+		}
+		else if (time < 3.6 * walktime) {
+			Footpos[i] = 3 * step;
+		}
+		else if (time < 3.9 * walktime) {
+			Footpos[i] = 3 * step;
+		}
+		else {
+			Footpos[i] = 3 * step;
+		}
+	};
+	return Footpos;
+
+}
+
+MatrixXd Foot::LF_ysimulation_rightwalk() {
+	this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
+	int sim_n = 5 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); //rightfoot motion
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+		if (time < 1.1 * walktime) {
+			Footpos[i] = -step;
+		}
+		else if (time < 1.4 * walktime) {
+			Footpos[i] = -step;
+		}
+		else if (time < 2.1 * walktime) {
+			Footpos[i] = -step;
+		}
+		else if (time < 2.4 * walktime) {
+			Footpos[i] = Step(time - 2.1 * walktime) - step;
+		}
+		else if (time < 3.1 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.4 * walktime) {
+			Footpos[i] = Step(time - 3.1 * walktime);
+		}
+		else {
+			Footpos[i] = step;
+		}
+	};
+	return Footpos;
+}
+
+MatrixXd Foot::RF_zsimulation_rightwalk() {
+
+		this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.02);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.02, 0);
+	int sim_n = 5 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); 
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+
+		if (time < 1.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.75 * walktime) {
+			Footpos[i] = Step(time - 1.55 * walktime);
+		}
+		else if (time < 1.95 * walktime) {
+			Footpos[i] = Stride(time - 1.55 * walktime);
+		}
+		else if (time < 2.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 2.75 * walktime) {
+			Footpos[i] = Step(time - 2.55 * walktime);
+		}
+		else if (time < 2.95 * walktime) {
+			Footpos[i] = Stride(time - 2.55 * walktime);
+		}
+		else if (time < 3.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.75 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.95 * walktime) {
+			Footpos[i] = 0;
+		}
+		else {
+			Footpos[i] = 0;
+		}
+	};
+	return Footpos;
+};
+
+MatrixXd Foot::LF_zsimulation_rightwalk() {
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.02);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.02, 0);
+	int sim_n = 5 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); 
 	for (int i = 0; i < sim_n; i++) {
 		double time = i * del_t;
 
@@ -501,93 +739,6 @@ MatrixXd Foot::LF_zsimulation_leftwalk() {
 		}
 	};
 	return Footpos;
-};
-
-MatrixXd Foot::RF_zsimulation_straightwalk()
-{
-    this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.01);
-    this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.01, 0);
-    int sim_n = 5 * walktime * freq;
-    double del_t = 1 / freq;
-    RowVectorXd Footpos(sim_n); //�������
-    for (int i = 0; i < sim_n; i++) {
-        double time = i * del_t;
-
-		if (time < 1.55 * walktime) {
-			Footpos[i] = 0;
-		}
-		else if (time < 1.75 * walktime) {
-			Footpos[i] = Step(time - 1.55 * walktime);
-		}
-		else if (time < 1.95 * walktime) {
-			Footpos[i] = Stride(time - 1.55 * walktime);
-		}
-		else if (time < 2.55 * walktime) {
-			Footpos[i] = 0;
-		}
-		else if (time < 2.75 * walktime) {
-			Footpos[i] = Step(time - 2.55 * walktime);
-		}
-		else if (time < 2.95 * walktime) {
-			Footpos[i] = Stride(time - 2.55 * walktime);
-		}
-		else if (time < 3.55 * walktime) {
-			Footpos[i] = 0;
-		}
-		else if (time < 3.75 * walktime) {
-			Footpos[i] = 0;
-		}
-		else if (time < 3.95 * walktime) {
-			Footpos[i] = 0;
-		}
-		else {
-			Footpos[i] = 0;
-		}
-	};
-    return Footpos;
-};
-
-MatrixXd Foot::LF_zsimulation_straightwalk() {
-    this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.01);
-    this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.01, 0);
-    int sim_n = 5 * walktime * freq;
-    double del_t = 1 / freq;
-    RowVectorXd Footpos(sim_n); //�������
-    for (int i = 0; i < sim_n; i++) {
-        double time = i * del_t;
-
-        if (time < 1.55 * walktime) {
-            Footpos[i] = 0;
-        }
-        else if (time < 1.75 * walktime) {
-            Footpos[i] = Step(time - 1.55 * walktime);
-        }
-        else if (time < 1.95 * walktime) {
-            Footpos[i] = Stride(time - 1.55 * walktime);
-        }
-        else if (time < 2.55 * walktime) {
-            Footpos[i] = 0;
-        }
-        else if (time < 2.75 * walktime) {
-            Footpos[i] = Step(time - 2.55 * walktime);
-        }
-        else if (time < 2.95 * walktime) {
-            Footpos[i] = Stride(time - 2.55 * walktime);
-        }
-        else if (time < 3.55 * walktime) {
-            Footpos[i] = 0;
-        }
-        else if (time < 3.75 * walktime) {
-            Footpos[i] = Step(time - 3.55 * walktime);
-        }
-        else if (time < 3.95 * walktime) {
-            Footpos[i] = Stride(time - 3.55 * walktime);
-        }
-        else {
-            Footpos[i] = 0;
-        }
-    };
-    return Footpos;
 };
 
 BRP_Inverse_Kinematics::BRP_Inverse_Kinematics() {
@@ -677,9 +828,6 @@ void BRP_Inverse_Kinematics::BRP_RL_IK(double Ref_RL_RP[6], double Init_th[6], d
 
 		if (ERR < 0.0001) {
 			for (i = 0; i < 6; i++)	IK_th[i] = th[i];
-
-			std::cout << "RL_iter = %d, ERR = %f \n", iter, ERR;
-
 			break;
 		}
 		else if (iter == 99) {
@@ -733,7 +881,7 @@ void BRP_Inverse_Kinematics::BRP_RL_IK(double Ref_RL_RP[6], double Init_th[6], d
 }
 
 void BRP_Inverse_Kinematics::BRP_LL_FK(double th[6], double PR[6]) {
-	double  c1, c2, c3, c4, c5, c6, s1, s2, s3, s4, s5, s6,  nx, ny, nz, ox, oy, oz, ax, ay, az;
+	double  c1, c2, c3, c4, c5, c6, s1, s2, s3, s4, s5, s6, nx, ny, nz, ox, oy, oz, ax, ay, az;
 
 	c1 = cos(th[0]); c2 = cos(th[1]); c3 = cos(th[2]); c4 = cos(th[3]); c5 = cos(th[4]); c6 = cos(th[5]);
 	s1 = sin(th[0]); s2 = sin(th[1]); s3 = sin(th[2]); s4 = sin(th[3]); s5 = sin(th[4]); s6 = sin(th[5]);
@@ -798,8 +946,6 @@ void BRP_Inverse_Kinematics::BRP_LL_IK(double Ref_LL_RP[6], double Init_th[6], d
 
 		if (ERR < 0.0001) {
 			for (i = 0; i < 6; i++)	IK_th[i] = th[i];
-
-			printf("LL_iter = %d, ERR = %f \n", iter, ERR);
 
 			break;
 		}
@@ -1020,21 +1166,21 @@ MatrixXd BRP_Inverse_Kinematics::BRP_RL_Simulation(MatrixXd relRFx, MatrixXd RFy
 	unsigned long Index_CNT = 0;
 	BRP_RL_IK(Ref_RL_PR, RL_th, RL_th_IK);
 	Matrix<double, 924, 6> RL;
-	for (Index_CNT = 0; Index_CNT < 924; Index_CNT++) {  // ��ü �ð�
+	for (Index_CNT = 0; Index_CNT < 924; Index_CNT++) { 
 		int i = 0;
 
-		Ref_RL_PR[0] = 1000 * relRFx(0,Index_CNT);
-		Ref_RL_PR[1] = -L0 + 1000 * RFy(0,Index_CNT);
-		Ref_RL_PR[2] = -L3 - L4 - L5 - L6 + 30. + 1000 * RFz(0,Index_CNT);
+		Ref_RL_PR[0] = 1000 * relRFx(0, Index_CNT);
+		Ref_RL_PR[1] = 1000 * RFy(0, Index_CNT);
+		Ref_RL_PR[2] = -L3 - L4 - L5 - L6 + 30. + 1000 * RFz(0, Index_CNT);
 		Ref_RL_PR[3] = 0 * deg2rad;
 		Ref_RL_PR[4] = 0 * deg2rad;
 		Ref_RL_PR[5] = 0 * deg2rad;
 
 		if (Index_CNT == 0) {
 
-			RL_th[0] = 0. * deg2rad;      // RHY
-			RL_th[1] = 0. * deg2rad;		// RHR
-			RL_th[2] = -15. * deg2rad;	//  
+			RL_th[0] = 0. * deg2rad;  
+			RL_th[1] = 0. * deg2rad; 
+			RL_th[2] = -15. * deg2rad; 	//  
 			RL_th[3] = 30. * deg2rad;		// RKN
 			RL_th[4] = -15. * deg2rad;    // RAP
 			RL_th[5] = 0. * deg2rad;		// RAR
@@ -1067,7 +1213,7 @@ MatrixXd BRP_Inverse_Kinematics::BRP_LL_Simulation(MatrixXd relLFx, MatrixXd LFy
 		int i = 0;
 
 		Ref_LL_PR[0] = 1000 * relLFx(0, Index_CNT);
-		Ref_LL_PR[1] = L0 + 1000 * LFy(0, Index_CNT);
+		Ref_LL_PR[1] = 1000 * LFy(0, Index_CNT);
 		Ref_LL_PR[2] = -L3 - L4 - L5 - L6 + 30. + 1000 * LFz(0, Index_CNT);
 		Ref_LL_PR[3] = 0 * deg2rad;
 		Ref_LL_PR[4] = 0 * deg2rad;
@@ -1105,27 +1251,48 @@ MatrixXd BRP_Inverse_Kinematics::BRP_LL_Simulation(MatrixXd relLFx, MatrixXd LFy
 Motions::Motions() {};
 
 //Moton1 go straight 4step
+void Motions::Motion0() {
+	Matrix<double, 1, 924> relativeRFx = Matrix<double, 1, 924>::Zero();
+	Matrix<double, 1, 924> relativeLFx = Matrix<double, 1, 924>::Zero();
+	MatrixXd RF_yFoot = - L0 * MatrixXd::Ones(1,924);
+	MatrixXd LF_yFoot = - L0 * MatrixXd::Ones(1,924);
+	Matrix<double, 1, 924> relativeRFz = Matrix<double, 1, 924>::Zero();
+	Matrix<double, 1, 924> relativeLFz = Matrix<double, 1, 924>::Zero();
+	BRP_Inverse_Kinematics joint;
+	this->Motion0_RL = joint.BRP_RL_Simulation(relativeRFx, RF_yFoot, relativeRFz);
+	this->Motion0_LL = joint.BRP_RL_Simulation(relativeLFx, LF_yFoot, relativeLFz);
+
+}
+MatrixXd Motions::Return_Motion0_RL() {
+	return Motion0_RL;
+};
+MatrixXd Motions::Return_Motion0_LL() {
+	return Motion0_LL;
+};
+
 void Motions::Motion1() {
-	
+
 	X_Com XCOM;
 	Y_Com YCOM;
 	Foot Foot;
 	XCOM.Change_Ref_Xpos(0, 0.1, 0.2, 0.3, 0.4, 0.5);
 	MatrixXd Xcom = XCOM.XComSimulation();
-	YCOM.Change_Ref_Ypos(0, -0.05, 0.05, -0.05, 0.05, -0.05);
+	YCOM.Change_Ref_Ypos(0, -0.05, 0.05, -0.05, 0.05, 0);
 	MatrixXd Ycom = YCOM.YComSimulation();
 	Foot.Change_step(0.1);
 	MatrixXd LF_xFoot = Foot.LF_xsimulation_straightwalk();
 	MatrixXd RF_xFoot = Foot.RF_xsimulation_straightwalk();
+	MatrixXd RF_yFoot = - L0 * MatrixXd::Ones(1,924);
+	MatrixXd LF_yFoot = - L0 * MatrixXd::Ones(1,924);
 	MatrixXd RF_zFoot = Foot.RF_zsimulation_straightwalk();
 	MatrixXd LF_zFoot = Foot.LF_zsimulation_straightwalk();
 	MatrixXd relativeRFx = RF_xFoot.block(0, 0, RF_xFoot.rows(), 924) - Xcom.block(0, 0, RF_xFoot.rows(), 924);
 	MatrixXd relativeLFx = LF_xFoot.block(0, 0, LF_xFoot.rows(), 924) - Xcom.block(0, 0, LF_xFoot.rows(), 924);
-	MatrixXd relativeRFy = -Ycom;
-	MatrixXd relativeLFy = -Ycom;
+	MatrixXd relativeRFy = RF_yFoot.block(0, 0, RF_yFoot.rows(), 924) -Ycom.block(0, 0, RF_yFoot.rows(), 924) ;
+	MatrixXd relativeLFy = LF_yFoot.block(0, 0, LF_yFoot.rows(), 924) -Ycom.block(0, 0, LF_yFoot.rows(), 924) ;
 	BRP_Inverse_Kinematics joint;
-	this -> Motion1_RL = joint.BRP_RL_Simulation(relativeRFx, relativeRFy, RF_zFoot);
-	this -> Motion1_LL = joint.BRP_RL_Simulation(relativeLFx, relativeLFy, LF_zFoot);
+	this->Motion1_RL = joint.BRP_RL_Simulation(relativeRFx, relativeRFy, RF_zFoot);
+	this->Motion1_LL = joint.BRP_RL_Simulation(relativeLFx, relativeLFy, LF_zFoot);
 };
 MatrixXd Motions::Return_Motion1_RL() {
 	return Motion1_RL;
@@ -1150,11 +1317,62 @@ void Motions::Motion2() {
 	MatrixXd relativeLFy = LF_yFoot.block(0, 0, LF_yFoot.rows(), 924) - Ycom.block(0, 0, LF_yFoot.rows(), 924);
 	BRP_Inverse_Kinematics joint;
 	this->Motion2_RL = joint.BRP_RL_Simulation(relativeRFx, relativeRFy, RF_zFoot);
-	this->Motion2_LL = joint.BRP_RL_Simulation(relativeLFx, relativeRFy, RF_zFoot);
+	this->Motion2_LL = joint.BRP_LL_Simulation(relativeLFx, relativeLFy, LF_zFoot);
 }
 MatrixXd Motions::Return_Motion2_RL() {
-	return Motion1_RL;
+	return Motion2_RL;
 };
 MatrixXd Motions::Return_Motion2_LL() {
 	return Motion2_LL;
+};
+
+void Motions::Motion3() {
+	Foot Foot;
+	Y_Com YCOM;
+	YCOM.Change_Ref_Ypos(0, -0.05, 0.05, -0.05, 0.05, 0);
+	MatrixXd Ycom = YCOM.YComSimulation();
+	MatrixXd RF_yFoot =  -L0 * MatrixXd::Ones(1, 924);
+	MatrixXd LF_yFoot =  -L0 * MatrixXd::Ones(1, 924);
+	MatrixXd RF_zFoot = Foot.RF_zsimulation_straightwalk();
+	MatrixXd LF_zFoot = Foot.LF_zsimulation_straightwalk();
+	Matrix<double, 1, 924> relativeRFx = Matrix<double, 1, 924>::Zero();
+	Matrix<double, 1, 924> relativeLFx = Matrix<double, 1, 924>::Zero();
+	MatrixXd relativeRFy = RF_yFoot -Ycom.block(0, 0, RF_yFoot.rows(), 924) ;
+	MatrixXd relativeLFy = LF_yFoot -Ycom.block(0, 0, LF_yFoot.rows(), 924) ;
+	BRP_Inverse_Kinematics joint;
+	this->Motion3_RL = joint.BRP_RL_Simulation(relativeRFx, relativeRFy, RF_zFoot);
+	this->Motion3_LL = joint.BRP_RL_Simulation(relativeLFx, relativeLFy, LF_zFoot);
+}
+MatrixXd Motions::Return_Motion3_RL() {
+	return Motion3_RL;
+};
+MatrixXd Motions::Return_Motion3_LL() {
+	return Motion3_LL;
+};
+
+void Motions::Motion4(){
+
+	Y_Com YCOM;
+	Foot Foot;
+	YCOM.Change_Ref_Ypos(0, 0.05, -0.1, 0, -0.15, -0.1);
+	MatrixXd Ycom = YCOM.YComSimulation();
+	Foot.Change_step(-0.05);
+	MatrixXd RF_yFoot = Foot.RF_ysimulation_leftwalk();
+	MatrixXd LF_yFoot = Foot.LF_ysimulation_leftwalk();
+	MatrixXd RF_zFoot = Foot.RF_zsimulation_leftwalk();
+	MatrixXd LF_zFoot = Foot.LF_zsimulation_leftwalk();
+	Matrix<double, 1, 924> relativeRFx = Matrix<double, 1, 924>::Zero();
+	Matrix<double, 1, 924> relativeLFx = Matrix<double, 1, 924>::Zero();
+	MatrixXd relativeRFy = RF_yFoot.block(0, 0, RF_yFoot.rows(), 924) - Ycom.block(0, 0, RF_yFoot.rows(), 924);
+	MatrixXd relativeLFy = LF_yFoot.block(0, 0, LF_yFoot.rows(), 924) - Ycom.block(0, 0, LF_yFoot.rows(), 924);
+	BRP_Inverse_Kinematics joint;
+	this->Motion4_RL = joint.BRP_RL_Simulation(relativeRFx, relativeRFy, RF_zFoot);
+	this->Motion4_LL = joint.BRP_LL_Simulation(relativeLFx, relativeLFy, LF_zFoot);
+
+}
+MatrixXd Motions::Return_Motion4_RL() {
+	return Motion4_RL;
+};
+MatrixXd Motions::Return_Motion4_LL() {
+	return Motion4_LL;
 };
