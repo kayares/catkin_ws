@@ -10,13 +10,14 @@ void pioneer::Load(ModelPtr _model, sdf::ElementPtr)
     char **argv = NULL;
     ros::init(argc, argv, "pioneer");
     ROS_INFO("JAEMIN");
-    IdleMotion();
+
     sub = n.subscribe("turn_angle", 1, &pioneer::PositionCallback, this);
     sub_motion_selector = n.subscribe("motion_selector", 1, &pioneer::SelectMotion, this);
     this->model = _model;
     jc0 = new physics::JointController(model);
     GetLinks();
     GetJoints();
+    MotionMaker();
     IdleMotion();
     InitROSPubSetting();
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(
@@ -87,7 +88,7 @@ void pioneer::GetJoints()
     this->LA_j3 = this->model->GetJoint("LA_j3");
     this->LA_j4 = this->model->GetJoint("LA_j4");
     this->bodyj = this->model->GetJoint("bodyj");
-    this->Neck_j1 = this->model->GetJoint("Neckj1");
+    this->Neck_j1 = this->model->GetJoint("Neck_j1");
     this->Neck_j2 = this->model->GetJoint("Neck_j2");
 
 
@@ -101,39 +102,42 @@ void pioneer::OnUpdate(const common::UpdateInfo &)
     GetJointPosition();
     ROSMsgPublish();
     PostureGeneration();
-    PIDcontroller();
-    SetTorque();
+    SetJointPosition();
+    // PIDcontroller();
+    // SetTorque();
   }
 
 void pioneer::SelectMotion(const std_msgs::Float32Ptr &msg){
     mode = msg ->data;
     ROS_INFO("mode(%f)",mode);
-    Motions motion;
     if (indext == 0){
     if (mode == 0 ){
-    motion.Motion0();
-    ref_LL_th = motion.Return_Motion0_LL();
-    ref_RL_th = motion.Return_Motion0_RL();
+    ref_LL_th = ref_LL_th0;
+    ref_RL_th = ref_RL_th0;
     }
     else if (mode == 1){
-    motion.Motion1();
-    ref_LL_th = motion.Return_Motion1_LL();
-    ref_RL_th = motion.Return_Motion1_RL();
+    ref_LL_th = ref_LL_th1;
+    ref_RL_th = ref_RL_th1;
     }
     else if (mode == 2){
-    motion.Motion2();
-    ref_LL_th = motion.Return_Motion2_LL();
-    ref_RL_th = motion.Return_Motion2_RL();
+    ref_LL_th = ref_LL_th2;
+    ref_RL_th = ref_RL_th2;
     }
     else if (mode == 3){
-    motion.Motion3();
-    ref_LL_th = motion.Return_Motion3_LL();
-    ref_RL_th = motion.Return_Motion3_RL();
+    ref_LL_th = ref_LL_th3;
+    ref_RL_th = ref_RL_th3;
+    }
+    else if (mode ==4){
+    ref_LL_th = ref_LL_th4;
+    ref_RL_th = ref_RL_th4;
+    }
+    else if (mode ==5){
+    ref_LL_th = ref_LL_th5;
+    ref_RL_th = ref_RL_th5;
     }
     else {
-    motion.Motion0();
-    ref_LL_th = motion.Return_Motion0_LL();
-    ref_RL_th = motion.Return_Motion0_RL();
+    ref_LL_th = ref_LL_th0;
+    ref_RL_th = ref_RL_th0;
     }
     }
 }
@@ -153,12 +157,12 @@ void pioneer::SetJointPosition()
     LL_j5->SetPosition(0, LL_th(4));
     LL_j6->SetPosition(0, LL_th(5));
     bodyj->SetPosition(0,0);
-    RA_j1->SetPosition(0,-90*deg2rad);
+    RA_j1->SetPosition(0,0);
     RA_j2->SetPosition(0,90*deg2rad);
     RA_j3->SetPosition(0,0);
     RA_j4->SetPosition(0,0);
-    LA_j1->SetPosition(0,-90*deg2rad);
-    LA_j2->SetPosition(0,90*deg2rad);
+    LA_j1->SetPosition(0,0);
+    LA_j2->SetPosition(0,-90*deg2rad);
     LA_j3->SetPosition(0,0);
     LA_j4->SetPosition(0,0);
     Neck_j1->SetPosition(0,0);
@@ -225,28 +229,25 @@ void pioneer::PostureGeneration()
   
  void pioneer::IdleMotion()
   { 
-    Motions motion;
-    ref_LL_th = motion.Return_Motion0_LL();
-    ref_RL_th = motion.Return_Motion0_RL();
-    RL_j1->SetPosition(0, ref_RL_th(0,0));
-    RL_j2->SetPosition(0, ref_RL_th(0,1));
-    RL_j3->SetPosition(0, ref_RL_th(0,2));
-    RL_j4->SetPosition(0, ref_RL_th(0,3));
-    RL_j5->SetPosition(0, ref_RL_th(0,4));
-    RL_j6->SetPosition(0, ref_RL_th(0,5));
-    LL_j1->SetPosition(0, ref_LL_th(0,0));
-    LL_j2->SetPosition(0, ref_LL_th(0,1));
-    LL_j3->SetPosition(0, ref_LL_th(0,2));
-    LL_j4->SetPosition(0, ref_LL_th(0,3));
-    LL_j5->SetPosition(0, ref_LL_th(0,4));
-    LL_j6->SetPosition(0, ref_LL_th(0,5));
+    RL_j1->SetPosition(0, ref_RL_th0(0,0));
+    RL_j2->SetPosition(0, ref_RL_th0(0,1));
+    RL_j3->SetPosition(0, -ref_RL_th0(0,2));
+    RL_j4->SetPosition(0, -ref_RL_th0(0,3));
+    RL_j5->SetPosition(0, -ref_RL_th0(0,4));
+    RL_j6->SetPosition(0, ref_RL_th0(0,5));
+    LL_j1->SetPosition(0, ref_LL_th0(0,0));
+    LL_j2->SetPosition(0, ref_LL_th0(0,1));
+    LL_j3->SetPosition(0, ref_LL_th0(0,2));
+    LL_j4->SetPosition(0, ref_LL_th0(0,3));
+    LL_j5->SetPosition(0, ref_LL_th0(0,4));
+    LL_j6->SetPosition(0, ref_LL_th0(0,5));
     bodyj->SetPosition(0,0);
-    RA_j1->SetPosition(0,-90*deg2rad);
+    RA_j1->SetPosition(0,0);
     RA_j2->SetPosition(0,90*deg2rad);
     RA_j3->SetPosition(0,0);
     RA_j4->SetPosition(0,0);
-    LA_j1->SetPosition(0,-90*deg2rad);
-    LA_j2->SetPosition(0,90*deg2rad);
+    LA_j1->SetPosition(0,0);
+    LA_j2->SetPosition(0,-90*deg2rad);
     LA_j3->SetPosition(0,0);
     LA_j4->SetPosition(0,0);
     Neck_j1->SetPosition(0,0);
@@ -256,31 +257,31 @@ void pioneer::PostureGeneration()
 
 void pioneer::PIDcontroller(){
   // p,d게인
-double kp[23] = {100,100,100,100,100,500,100,100,100,100,100,500,100,100,100,100,100,100,100,100,100,100,100};
-double kd[23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+// double kp[23] = {100,100,100,100,100,500,100,100,100,100,100,500,100,100,100,100,100,100,100,100,100,100,100};
+// double kd[23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-//arm degree
-ref_RA_th << 0, 90*deg2rad , -90*deg2rad ,0;
-ref_LA_th << 0, 90*deg2rad , -90*deg2rad ,0;
+// //arm degree
+// ref_RA_th << 0, 90*deg2rad , -90*deg2rad ,0;
+// ref_LA_th << 0, 90*deg2rad , -90*deg2rad ,0;
 
-//error, errordot
-for (int i = 0; i<6;i++){
-  error[i] = RL_th(i)-sensor_th[i];
-  error[i+6] = LL_th(i)-sensor_th[i+6];
-}
-error[12] = 0 - sensor_th[12];
-for (int i = 0; i<4; i++){
-  error[i+13] = ref_RA_th[i]- sensor_th[i+13];
-  error[i+17] = ref_LA_th[i]- sensor_th[i+17];
-}
-error[21] = 0-sensor_th[21];
-error[22] = 0-sensor_th[22];
+// //error, errordot
+// for (int i = 0; i<6;i++){
+//   error[i] = RL_th(i)-sensor_th[i];
+//   error[i+6] = LL_th(i)-sensor_th[i+6];
+// }
+// error[12] = 0 - sensor_th[12];
+// for (int i = 0; i<4; i++){
+//   error[i+13] = ref_RA_th[i]- sensor_th[i+13];
+//   error[i+17] = ref_LA_th[i]- sensor_th[i+17];
+// }
+// error[21] = 0-sensor_th[21];
+// error[22] = 0-sensor_th[22];
 
-for (int i = 0; i<22;i++){
-  error_dot[i] = (sensor_th[i] - prev_position[i]) / dt;
-  torque[i] = kp[i]*error[i] + kd[i]*error_dot[i];
-}
-  prev_position = sensor_th;
+// for (int i = 0; i<23;i++){
+//   error_dot[i] = (sensor_th[i] - prev_position[i]) / dt;
+//   torque[i] = kp[i]*error[i] + kd[i]*error_dot[i];
+// }
+//   prev_position = sensor_th;
 }
 
 void pioneer::SetTorque(){
@@ -298,16 +299,43 @@ void pioneer::SetTorque(){
   LL_j6->SetForce(0, torque(11));
   bodyj->SetForce(0, torque(12));
   RA_j1->SetForce(0, torque(13));
-  RA_j1->SetForce(0, torque(14));
-  RA_j1->SetForce(0, torque(15));
-  RA_j1->SetForce(0, torque(16));
+  RA_j2->SetForce(0, torque(14));
+  RA_j3->SetForce(0, torque(15));
+  RA_j4->SetForce(0, torque(16));
   LA_j1->SetForce(0, torque(17));
-  LA_j1->SetForce(0, torque(18));
-  LA_j1->SetForce(0, torque(19));
-  LA_j1->SetForce(0, torque(20));
+  LA_j2->SetForce(0, torque(18));
+  LA_j3->SetForce(0, torque(19));
+  LA_j4->SetForce(0, torque(20));
   Neck_j1->SetForce(0, torque(21));
   Neck_j2->SetForce(0, torque(22));
 
+}
+
+void pioneer::MotionMaker(){
+    Motions motion;
+    motion.Motion0();
+    ref_LL_th0 = motion.Return_Motion0_LL();
+    ref_RL_th0 = motion.Return_Motion0_RL();
+
+    motion.Motion1();
+    ref_LL_th1 = motion.Return_Motion1_LL();
+    ref_RL_th1 = motion.Return_Motion1_RL();
+
+    motion.Motion2();
+    ref_LL_th2 = motion.Return_Motion2_LL();
+    ref_RL_th2 = motion.Return_Motion2_RL();
+
+    motion.Motion3();
+    ref_LL_th3 = motion.Return_Motion3_LL();
+    ref_RL_th3 = motion.Return_Motion3_RL();
+
+    motion.Motion4();
+    ref_LL_th4 = motion.Return_Motion4_LL();
+    ref_RL_th4 = motion.Return_Motion4_RL();
+
+    motion.Motion5();
+    ref_LL_th5 = motion.Return_Motion5_LL();
+    ref_RL_th5 = motion.Return_Motion5_RL();
 }
 
 void pioneer::TurningTrajectory(){
@@ -377,4 +405,6 @@ if (angle >0){
 };
 
 }
+
+
 

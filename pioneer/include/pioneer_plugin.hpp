@@ -71,24 +71,35 @@ namespace gazebo
         ros::Subscriber sub_motion_selector;
         ros::Publisher pub_joint_state;
         int time;
-        int indext; 
+        int indext = 0; 
         float angle;
         float mode = 0;
-        VectorXd RL_th = VectorXd::Zero(6);
-        VectorXd LL_th = VectorXd::Zero(6);
+
         MatrixXd ref_RL_th;
         MatrixXd ref_LL_th;
+        MatrixXd ref_RL_th0;
+        MatrixXd ref_LL_th0;
+        MatrixXd ref_RL_th1;
+        MatrixXd ref_LL_th1;
+        MatrixXd ref_RL_th2;
+        MatrixXd ref_LL_th2;
+        MatrixXd ref_RL_th3;
+        MatrixXd ref_LL_th3;
+        MatrixXd ref_RL_th4;
+        MatrixXd ref_LL_th4;
+        MatrixXd ref_RL_th5;
+        MatrixXd ref_LL_th5;
+        VectorXd RL_th = VectorXd::Zero(6);
+        VectorXd LL_th = VectorXd::Zero(6);
         VectorXd ref_RA_th = VectorXd::Zero(4);
         VectorXd ref_LA_th = VectorXd::Zero(4);
         VectorXd sensor_th = VectorXd::Zero(23);
-        VectorXd turn = VectorXd::Zero(6);
-        VectorXd back = VectorXd::Zero(6);
         VectorXd error = VectorXd::Zero(23);
         VectorXd error_dot = VectorXd::Zero(23);
         VectorXd prev_position = VectorXd::Zero(23);
         VectorXd torque = VectorXd::Zero(23);
 
-        const std::vector<std::string> joint_names = {"RLjoint1", "RLjoint2", "RLjoint3", "RLjoint4", "RLjoint5", "RLjoint6", "LLjoint1", "LLjoint2", "LLjoint3", "LLjoint4", "LLjoint5", "LLjoint6","bodyj", "RA_j1", "RA_j2", "RA_j3", "RA_j4", "LA_j1", "LA_j2", "LA_j3", "LA_j4","Neckj1", "Neck_j2"};
+        const std::vector<std::string> joint_names = {"bodyj", "RA_j1", "RA_j2", "RA_j3", "RA_j4", "LA_j1", "LA_j2", "LA_j3", "LA_j4", "Neckj_1", "Neck_j2", "RL_j1", "RL_j2", "RL_j3", "RL_j4", "RL_j5", "RL_j6", "LL_j1", "LL_j2", "LL_j3", "LL_j4", "LL_j5", "LL_j6"};
         common::Time last_update_time;
         common::Time current_time;
         event::ConnectionPtr update_connection;
@@ -101,6 +112,7 @@ namespace gazebo
 
 
     public:
+
         pioneer() {}
         ~pioneer()
         {
@@ -123,6 +135,7 @@ namespace gazebo
         void TurningTrajectory();
         void PIDcontroller();
         void SetTorque();
+        void MotionMaker();
 
 };
 GZ_REGISTER_MODEL_PLUGIN(pioneer);

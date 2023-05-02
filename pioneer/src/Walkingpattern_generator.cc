@@ -742,16 +742,16 @@ MatrixXd Foot::LF_zsimulation_rightwalk() {
 BRP_Inverse_Kinematics::BRP_Inverse_Kinematics() {
 	RL_th[0] = 0. * deg2rad;      // RHY
 	RL_th[1] = 0. * deg2rad;		// RHR
-	RL_th[2] = -35. * deg2rad;	// RHP
-	RL_th[3] = 70. * deg2rad;		// RKN
-	RL_th[4] = -35. * deg2rad;    // RAP
+	RL_th[2] = -15. * deg2rad;	// RHP
+	RL_th[3] = 30. * deg2rad;		// RKN
+	RL_th[4] = -15. * deg2rad;    // RAP
 	RL_th[5] = 0. * deg2rad;		// RAR
 
 	LL_th[0] = 0. * deg2rad;		// LHY
 	LL_th[1] = 0. * deg2rad;		// LHR
-	LL_th[2] = -35. * deg2rad;	// LHP
-	LL_th[3] = 70. * deg2rad;		// LKN
-	LL_th[4] = -35. * deg2rad;	// LAP
+	LL_th[2] = -15. * deg2rad;	// LHP
+	LL_th[3] = 30. * deg2rad;		// LKN
+	LL_th[4] = -15. * deg2rad;	// LAP
 	LL_th[5] = 0. * deg2rad;		// LAR
 
 	Ref_RL_PR[0] = 0.;

@@ -24,7 +24,7 @@
     </include>
 
 <include>
-      <uri>model://pioneer</uri>
+      <uri>model://pioneer3</uri>
 	    <pose frame="">0 0 1 0 0 0</pose> 
        <plugin name="pioneer_plugin" filename="libpioneer.so"/>
     </include>
