@@ -12,7 +12,7 @@ protected:
     double stride;
     double freq;
     double del_t;
-    double z_c = 0.30574;;
+    double z_c = 0.29507;
     double g;
     double T_prev;
     int NL;
@@ -112,13 +112,13 @@ public:
 class BRP_Inverse_Kinematics
 {
 private:
-    double L0 = 42.25;
-    double L1 = 0;
-    double L2 = 0;
-    double L3 = 122.09;
+    double L0 = 45;
+    double L1 = 35.64;
+    double L2 = 36.07;
+    double L3 = 136.29;
     double L4 = 111.76;
-    double L5 = 35.80;
-    double L6 = 35.59;
+    double L5 = 36.10;
+    double L6 = 29.79;
 
     double FW = 92.8;
     double FL = 137.8;
@@ -154,7 +154,7 @@ private:
     MatrixXd Motion4_LL;
     MatrixXd Motion5_RL;
     MatrixXd Motion5_LL;
-    double L0 = 0.04225;
+    double L0 = 0.045;
 
 public:
 

@@ -102,9 +102,9 @@ void pioneer::OnUpdate(const common::UpdateInfo &)
     GetJointPosition();
     ROSMsgPublish();
     PostureGeneration();
-    SetJointPosition();
-    // PIDcontroller();
-    // SetTorque();
+    // SetJointPosition();
+    PIDcontroller();
+    SetTorque();
   }
 
 void pioneer::SelectMotion(const std_msgs::Float32Ptr &msg){
@@ -257,31 +257,31 @@ void pioneer::PostureGeneration()
 
 void pioneer::PIDcontroller(){
   // p,d게인
-// double kp[23] = {100,100,100,100,100,500,100,100,100,100,100,500,100,100,100,100,100,100,100,100,100,100,100};
-// double kd[23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+double kp[23] = {100,350,410,350,320,500/*Rleg*/,100,350,410,350,320,500,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
+double kd[23] = {0.01,0.005,0.01,0.005,0,0,/*Rleg*/0.01,0.005,0.01,0.005,0,0,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
 
-// //arm degree
-// ref_RA_th << 0, 90*deg2rad , -90*deg2rad ,0;
-// ref_LA_th << 0, 90*deg2rad , -90*deg2rad ,0;
+//arm degree
+ref_RA_th << 0, 90*deg2rad,0 ,0;
+ref_LA_th << 0, -90*deg2rad,0 ,0;
 
-// //error, errordot
-// for (int i = 0; i<6;i++){
-//   error[i] = RL_th(i)-sensor_th[i];
-//   error[i+6] = LL_th(i)-sensor_th[i+6];
-// }
-// error[12] = 0 - sensor_th[12];
-// for (int i = 0; i<4; i++){
-//   error[i+13] = ref_RA_th[i]- sensor_th[i+13];
-//   error[i+17] = ref_LA_th[i]- sensor_th[i+17];
-// }
-// error[21] = 0-sensor_th[21];
-// error[22] = 0-sensor_th[22];
+//error, errordot
+for (int i = 0; i<6;i++){
+  error[i] = RL_th(i)-sensor_th[i];
+  error[i+6] = LL_th(i)-sensor_th[i+6];
+}
+error[12] = 0 - sensor_th[12];
+for (int i = 0; i<4; i++){
+  error[i+13] = ref_RA_th[i]- sensor_th[i+13];
+  error[i+17] = ref_LA_th[i]- sensor_th[i+17];
+}
+error[21] = 0-sensor_th[21];
+error[22] = 0-sensor_th[22];
 
-// for (int i = 0; i<23;i++){
-//   error_dot[i] = (sensor_th[i] - prev_position[i]) / dt;
-//   torque[i] = kp[i]*error[i] + kd[i]*error_dot[i];
-// }
-//   prev_position = sensor_th;
+for (int i = 0; i<23;i++){
+  error_dot[i] = (sensor_th[i] - prev_position[i]) / dt;
+  torque[i] = kp[i]*error[i] + kd[i]*error_dot[i];
+}
+  prev_position = sensor_th;
 }
 
 void pioneer::SetTorque(){
@@ -336,6 +336,9 @@ void pioneer::MotionMaker(){
     motion.Motion5();
     ref_LL_th5 = motion.Return_Motion5_LL();
     ref_RL_th5 = motion.Return_Motion5_RL();
+
+    ref_LL_th = ref_LL_th0;
+    ref_RL_th = ref_RL_th0;
 }
 
 void pioneer::TurningTrajectory(){

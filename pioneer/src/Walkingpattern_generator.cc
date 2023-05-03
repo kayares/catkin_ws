@@ -12,7 +12,7 @@ Com::Com()
 	stride = 0.1;
 	freq = 300;
 	del_t = 1 / freq;
-	z_c = 0.29507;
+	z_c = 0.30685;
 	g = 9.81;
 	T_prev = 1.5;
 	NL = T_prev * freq;
@@ -350,8 +350,8 @@ MatrixXd Foot::LF_xsimulation_straightwalk() {
 
 MatrixXd Foot::RF_zsimulation_straightwalk()
 {
-	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.01);
-	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.01, 0);
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.03);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.03, 0);
 	int sim_n = 5 * walktime * freq;
 	double del_t = 1 / freq;
 	RowVectorXd Footpos(sim_n);
@@ -361,10 +361,10 @@ MatrixXd Foot::RF_zsimulation_straightwalk()
 			Footpos[i] = 0;
 		}
 		else if (time < 1.25 * walktime) {
-			Footpos[i] = 0;
+			Footpos[i] = Step(time - 1.05 * walktime);
 		}
 		else if (time < 1.45 * walktime) {
-			Footpos[i] = 0;
+			Footpos[i] = Stride(time - 1.05 * walktime);
 		}
 		else if (time < 2.05 * walktime) {
 			Footpos[i] = 0;
@@ -392,8 +392,8 @@ MatrixXd Foot::RF_zsimulation_straightwalk()
 };
 
 MatrixXd Foot::LF_zsimulation_straightwalk() {
-	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.01);
-	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.01, 0);
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.03);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.03, 0);
 	int sim_n = 5 * walktime * freq;
 	double del_t = 1 / freq;
 	RowVectorXd Footpos(sim_n);
@@ -742,16 +742,16 @@ MatrixXd Foot::LF_zsimulation_rightwalk() {
 BRP_Inverse_Kinematics::BRP_Inverse_Kinematics() {
 	RL_th[0] = 0. * deg2rad;      // RHY
 	RL_th[1] = 0. * deg2rad;		// RHR
-	RL_th[2] = -15. * deg2rad;	// RHP
-	RL_th[3] = 30. * deg2rad;		// RKN
-	RL_th[4] = -15. * deg2rad;    // RAP
+	RL_th[2] = -35. * deg2rad;	// RHP
+	RL_th[3] = 70. * deg2rad;		// RKN
+	RL_th[4] = -35. * deg2rad;    // RAP
 	RL_th[5] = 0. * deg2rad;		// RAR
 
 	LL_th[0] = 0. * deg2rad;		// LHY
 	LL_th[1] = 0. * deg2rad;		// LHR
-	LL_th[2] = -15. * deg2rad;	// LHP
-	LL_th[3] = 30. * deg2rad;		// LKN
-	LL_th[4] = -15. * deg2rad;	// LAP
+	LL_th[2] = -35. * deg2rad;	// LHP
+	LL_th[3] = 70. * deg2rad;		// LKN
+	LL_th[4] = -35. * deg2rad;	// LAP
 	LL_th[5] = 0. * deg2rad;		// LAR
 
 	Ref_RL_PR[0] = 0.;
@@ -1274,7 +1274,7 @@ void Motions::Motion1() {
 	Foot Foot;
 	XCOM.Change_Ref_Xpos(0, 0.1, 0.2, 0.3, 0.4, 0.5);
 	MatrixXd Xcom = XCOM.XComSimulation();
-	YCOM.Change_Ref_Ypos(0, -0.05, 0.05, -0.05, 0.05, 0);
+	YCOM.Change_Ref_Ypos(0, -0.045, 0.045, -0.045, 0.045, 0);
 	MatrixXd Ycom = YCOM.YComSimulation();
 	Foot.Change_step(0.1);
 	MatrixXd LF_xFoot = Foot.LF_xsimulation_straightwalk();
@@ -1326,7 +1326,7 @@ MatrixXd Motions::Return_Motion2_LL() {
 void Motions::Motion3() {
 	Foot Foot;
 	Y_Com YCOM;
-	YCOM.Change_Ref_Ypos(0, -0.05, 0.05, -0.05, 0.05, 0);
+	YCOM.Change_Ref_Ypos(0, -0.045, 0.045, -0.045, 0.045, 0);
 	MatrixXd Ycom = YCOM.YComSimulation();
 	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, 924);
 	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, 924);
@@ -1380,7 +1380,7 @@ void Motions::Motion5() {
 	Foot Foot;
 	XCOM.Change_Ref_Xpos(0, -0.1, -0.2, -0.3, -0.4, -0.5);
 	MatrixXd Xcom = XCOM.XComSimulation();
-	YCOM.Change_Ref_Ypos(0, -0.05, 0.05, -0.05, 0.05, 0);
+	YCOM.Change_Ref_Ypos(0, -0.045, 0.045, -0.045, 0.045, 0);
 	MatrixXd Ycom = YCOM.YComSimulation();
 	Foot.Change_step(-0.1);
 	MatrixXd LF_xFoot = Foot.LF_xsimulation_straightwalk();
