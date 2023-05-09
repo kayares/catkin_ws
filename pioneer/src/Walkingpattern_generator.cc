@@ -178,7 +178,10 @@ MatrixXd Y_Com::YComSimulation() {
 	RowVectorXd zmp_ref(sim_n);
 	for (int i = 0; i < sim_n; i++) {
 		double time = i * del_t;
-		if (time < 1.5 * walktime) {
+		if (time < 1 * walktime) {
+		zmp_ref[i] = 0;
+		}
+		else if (time < 1.5 * walktime) {
 			zmp_ref[i] = Ref_Ypos[0];
 		}
 		else if (time < 2 * walktime) {
@@ -350,8 +353,8 @@ MatrixXd Foot::LF_xsimulation_straightwalk() {
 
 MatrixXd Foot::RF_zsimulation_straightwalk()
 {
-	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.03);
-	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.03, 0);
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.05);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.05, 0);
 	int sim_n = 5 * walktime * freq;
 	double del_t = 1 / freq;
 	RowVectorXd Footpos(sim_n);
@@ -392,8 +395,8 @@ MatrixXd Foot::RF_zsimulation_straightwalk()
 };
 
 MatrixXd Foot::LF_zsimulation_straightwalk() {
-	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.03);
-	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.03, 0);
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.05);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.05, 0);
 	int sim_n = 5 * walktime * freq;
 	double del_t = 1 / freq;
 	RowVectorXd Footpos(sim_n);
@@ -1272,11 +1275,11 @@ void Motions::Motion1() {
 	X_Com XCOM;
 	Y_Com YCOM;
 	Foot Foot;
-	XCOM.Change_Ref_Xpos(0, 0.1, 0.2, 0.3, 0.4, 0.5);
+	XCOM.Change_Ref_Xpos(0, 0.05, 0.1, 0.15, 0.2, 0.25);
 	MatrixXd Xcom = XCOM.XComSimulation();
-	YCOM.Change_Ref_Ypos(0, -0.045, 0.045, -0.045, 0.045, 0);
+	YCOM.Change_Ref_Ypos(0.045, -0.045, 0.045, -0.045, 0.045, 0);
 	MatrixXd Ycom = YCOM.YComSimulation();
-	Foot.Change_step(0.1);
+	Foot.Change_step(0.05);
 	MatrixXd LF_xFoot = Foot.LF_xsimulation_straightwalk();
 	MatrixXd RF_xFoot = Foot.RF_xsimulation_straightwalk();
 	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, 924);
@@ -1401,5 +1404,40 @@ MatrixXd Motions::Return_Motion5_RL() {
 	return Motion5_RL;
 };
 MatrixXd Motions::Return_Motion5_LL() {
+
 	return Motion5_LL;
 };
+
+void Motions::Motion6(){
+	X_Com XCOM;
+	Y_Com YCOM;
+	Foot Foot;
+	XCOM.Change_Ref_Xpos(0, 0, 0, 0, 0, 0);
+	MatrixXd Xcom = XCOM.XComSimulation();
+	YCOM.Change_Ref_Ypos(0.045, -0.045, 0.045, -0.045, 0.045, -0.045);
+	MatrixXd Ycom = YCOM.YComSimulation();
+	Foot.Change_step(0);
+	MatrixXd LF_xFoot = Foot.LF_xsimulation_straightwalk();
+	MatrixXd RF_xFoot = Foot.RF_xsimulation_straightwalk();
+	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, 924);
+	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, 924);
+	MatrixXd RF_zFoot = Foot.RF_zsimulation_straightwalk();
+	MatrixXd LF_zFoot = Foot.LF_zsimulation_straightwalk();
+	MatrixXd relativeRFx = RF_xFoot.block(0, 0, RF_xFoot.rows(), 924) - Xcom.block(0, 0, RF_xFoot.rows(), 924);
+	MatrixXd relativeLFx = LF_xFoot.block(0, 0, LF_xFoot.rows(), 924) - Xcom.block(0, 0, LF_xFoot.rows(), 924);
+	MatrixXd relativeRFy = RF_yFoot.block(0, 0, RF_yFoot.rows(), 924) - Ycom.block(0, 0, RF_yFoot.rows(), 924);
+	MatrixXd relativeLFy = LF_yFoot.block(0, 0, LF_yFoot.rows(), 924) - Ycom.block(0, 0, LF_yFoot.rows(), 924);
+	BRP_Inverse_Kinematics joint;
+	this->Motion6_RL = joint.BRP_RL_Simulation(relativeRFx, relativeRFy, RF_zFoot);
+	this->Motion6_LL = joint.BRP_LL_Simulation(relativeLFx, relativeLFy, LF_zFoot);
+}
+MatrixXd Motions::Return_Motion6_RL() {
+	return Motion6_RL;
+};
+MatrixXd Motions::Return_Motion6_LL() {
+	return Motion6_LL;
+};
+
+
+
+

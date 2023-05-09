@@ -154,6 +154,8 @@ private:
     MatrixXd Motion4_LL;
     MatrixXd Motion5_RL;
     MatrixXd Motion5_LL;
+    MatrixXd Motion6_RL;
+    MatrixXd Motion6_LL;
     double L0 = 0.045;
 
 public:
@@ -165,6 +167,7 @@ public:
     void Motion3();//step in place
     void Motion4();//rightwalk 2step
     void Motion5();//go back 4step
+    void Motion6();//view com movement
     MatrixXd Return_Motion0_RL();
     MatrixXd Return_Motion0_LL();
     MatrixXd Return_Motion1_RL();
@@ -177,4 +180,6 @@ public:
     MatrixXd Return_Motion4_RL();
     MatrixXd Return_Motion5_LL();
     MatrixXd Return_Motion5_RL();
+    MatrixXd Return_Motion6_LL();
+    MatrixXd Return_Motion6_RL();
 };

@@ -29,7 +29,6 @@
 using gazebo::physics::ModelPtr;
 using gazebo::physics::LinkPtr;
 using gazebo::sensors::ImuSensorPtr;
-using gazebo::sensors::SensorPtr;
 using gazebo::physics::JointPtr;
 using gazebo::event::ConnectionPtr;
 using gazebo::common::Time;
@@ -66,6 +65,8 @@ namespace gazebo
         JointPtr RL_j1, RL_j2, RL_j3, RL_j4, RL_j5, RL_j6,LL_j1, LL_j2, LL_j3, LL_j4, LL_j5, LL_j6;
         JointPtr RA_j1,RA_j2,RA_j3,RA_j4,LA_j1,LA_j2,LA_j3,LA_j4,bodyj,Neck_j1,Neck_j2;
         ConnectionPtr updateConnection;
+        sensors::ContactSensorPtr parentSensor;
+        sensors::SensorPtr Sensor;
         ros::NodeHandle n;
         ros::Subscriber sub;
         ros::Subscriber sub_motion_selector;
@@ -89,6 +90,8 @@ namespace gazebo
         MatrixXd ref_LL_th4;
         MatrixXd ref_RL_th5;
         MatrixXd ref_LL_th5;
+        MatrixXd ref_RL_th6;
+        MatrixXd ref_LL_th6;
         VectorXd RL_th = VectorXd::Zero(6);
         VectorXd LL_th = VectorXd::Zero(6);
         VectorXd ref_RA_th = VectorXd::Zero(4);
@@ -124,6 +127,8 @@ namespace gazebo
         void GetJoints();
         void IdleMotion();
         void GetJointPosition();
+        void GetSensor();
+        void GetSensorValues();
         void InitROSPubSetting();
         void ROSMsgPublish();
 

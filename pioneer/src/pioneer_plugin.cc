@@ -17,11 +17,13 @@ void pioneer::Load(ModelPtr _model, sdf::ElementPtr)
     jc0 = new physics::JointController(model);
     GetLinks();
     GetJoints();
+    GetSensor();
     MotionMaker();
     IdleMotion();
     InitROSPubSetting();
-    this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-    boost::bind(&pioneer::OnUpdate, this, _1));
+    // this->last_update_time = this->model->GetWorld()->SimTime();
+    this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&pioneer::OnUpdate, this, _1));
+    // this->parentSensor->SetActive(true);
     time = 0;
     indext = 0;
     angle = 0;
@@ -105,6 +107,7 @@ void pioneer::OnUpdate(const common::UpdateInfo &)
     // SetJointPosition();
     PIDcontroller();
     SetTorque();
+    // GetSensorValues();
   }
 
 void pioneer::SelectMotion(const std_msgs::Float32Ptr &msg){
@@ -134,6 +137,10 @@ void pioneer::SelectMotion(const std_msgs::Float32Ptr &msg){
     else if (mode ==5){
     ref_LL_th = ref_LL_th5;
     ref_RL_th = ref_RL_th5;
+    }
+    else if (mode == 6){
+      ref_LL_th = ref_LL_th6;
+      ref_RL_th = ref_RL_th6;
     }
     else {
     ref_LL_th = ref_LL_th0;
@@ -256,9 +263,12 @@ void pioneer::PostureGeneration()
  } 
 
 void pioneer::PIDcontroller(){
-  // p,d게인
-double kp[23] = {100,350,410,350,320,500/*Rleg*/,100,350,410,350,320,500,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
-double kd[23] = {0.01,0.005,0.01,0.005,0,0,/*Rleg*/0.01,0.005,0.01,0.005,0,0,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
+  // p,d게인 for 33
+// double kp[23] = {100,450,450,400,500,700/*Rleg*/,100,450,450,400,500,700,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
+// double kd[23] = {0.01,0.01,0.01,0.01,0.01,0.01,/*Rleg*/0.01,0.01,0.01,0.01,0.01,0.01,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
+//pdgain for 3
+double kp[23] = {100,300,250,300,320,500/*Rleg*/,100,300,250,300,320,500,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
+double kd[23] = {0.0001,0.000,0.0001,0.000,0.000,0.0001,/*Rleg*/0.0001,0.000,0.0001,0.000,0.000,0.0001,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
 
 //arm degree
 ref_RA_th << 0, 90*deg2rad,0 ,0;
@@ -337,8 +347,14 @@ void pioneer::MotionMaker(){
     ref_LL_th5 = motion.Return_Motion5_LL();
     ref_RL_th5 = motion.Return_Motion5_RL();
 
+    motion.Motion6();
+    ref_LL_th6 = motion.Return_Motion6_LL();
+    ref_RL_th6 = motion.Return_Motion6_RL();
+
     ref_LL_th = ref_LL_th0;
     ref_RL_th = ref_RL_th0;
+
+
 }
 
 void pioneer::TurningTrajectory(){
@@ -407,7 +423,43 @@ if (angle >0){
 };
 };
 
+void pioneer::GetSensor(){
+
+this->parentSensor = std::dynamic_pointer_cast<sensors::ContactSensor>(Sensor);
+
+  // Make sure the parent sensor is valid.
+  if (!this->parentSensor)
+  {
+    gzerr << "ContactPlugin requires a ContactSensor.\n";
+    return;
+  }
+} 
+void pioneer::GetSensorValues(){
+  msgs::Contacts contacts;
+  contacts = this->parentSensor->Contacts();
+  for (unsigned int i = 0; i < contacts.contact_size(); ++i)
+  {
+    std::cout << "Collision between[" << contacts.contact(i).collision1()
+              << "] and [" << contacts.contact(i).collision2() << "]\n";
+
+    for (unsigned int j = 0; j < contacts.contact(i).position_size(); ++j)
+    {
+      std::cout << j << "  Position:"
+                << contacts.contact(i).position(j).x() << " "
+                << contacts.contact(i).position(j).y() << " "
+                << contacts.contact(i).position(j).z() << "\n";
+      std::cout << "   Normal:"
+                << contacts.contact(i).normal(j).x() << " "
+                << contacts.contact(i).normal(j).y() << " "
+                << contacts.contact(i).normal(j).z() << "\n";
+      std::cout << "   Depth:" << contacts.contact(i).depth(j) << "\n";
+    }
+
 }
 
 
 
+}
+
+
+}
