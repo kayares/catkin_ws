@@ -65,8 +65,11 @@ namespace gazebo
         JointPtr RL_j1, RL_j2, RL_j3, RL_j4, RL_j5, RL_j6,LL_j1, LL_j2, LL_j3, LL_j4, LL_j5, LL_j6;
         JointPtr RA_j1,RA_j2,RA_j3,RA_j4,LA_j1,LA_j2,LA_j3,LA_j4,bodyj,Neck_j1,Neck_j2;
         ConnectionPtr updateConnection;
-        sensors::ContactSensorPtr parentSensor;
+        sensors::ContactSensorPtr RL_Sensor;
+        sensors::ContactSensorPtr LL_Sensor;
         sensors::SensorPtr Sensor;
+        msgs::Contacts RL_contacts;
+        msgs::Contacts LL_contacts;
         ros::NodeHandle n;
         ros::Subscriber sub;
         ros::Subscriber sub_motion_selector;
@@ -75,6 +78,8 @@ namespace gazebo
         int indext = 0; 
         float angle;
         float mode = 0;
+        double walkfreq = 1.6227;
+	    double walktime = 1 / walkfreq;
 
         MatrixXd ref_RL_th;
         MatrixXd ref_LL_th;

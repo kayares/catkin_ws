@@ -1275,11 +1275,11 @@ void Motions::Motion1() {
 	X_Com XCOM;
 	Y_Com YCOM;
 	Foot Foot;
-	XCOM.Change_Ref_Xpos(0, 0.05, 0.1, 0.15, 0.2, 0.25);
+	XCOM.Change_Ref_Xpos(0, 0.1, 0.2, 0.3, 0.4, 0.5);
 	MatrixXd Xcom = XCOM.XComSimulation();
 	YCOM.Change_Ref_Ypos(0.045, -0.045, 0.045, -0.045, 0.045, 0);
 	MatrixXd Ycom = YCOM.YComSimulation();
-	Foot.Change_step(0.05);
+	Foot.Change_step(0.1);
 	MatrixXd LF_xFoot = Foot.LF_xsimulation_straightwalk();
 	MatrixXd RF_xFoot = Foot.RF_xsimulation_straightwalk();
 	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, 924);
@@ -1329,7 +1329,7 @@ MatrixXd Motions::Return_Motion2_LL() {
 void Motions::Motion3() {
 	Foot Foot;
 	Y_Com YCOM;
-	YCOM.Change_Ref_Ypos(0, -0.045, 0.045, -0.045, 0.045, 0);
+	YCOM.Change_Ref_Ypos(0.045, -0.045, 0.045, -0.045, 0.045, 0);
 	MatrixXd Ycom = YCOM.YComSimulation();
 	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, 924);
 	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, 924);

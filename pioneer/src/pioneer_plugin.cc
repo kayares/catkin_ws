@@ -23,7 +23,8 @@ void pioneer::Load(ModelPtr _model, sdf::ElementPtr)
     InitROSPubSetting();
     // this->last_update_time = this->model->GetWorld()->SimTime();
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&pioneer::OnUpdate, this, _1));
-    // this->parentSensor->SetActive(true);
+    this->RL_Sensor->SetActive(true);
+    this->LL_Sensor->SetActive(true);
     time = 0;
     indext = 0;
     angle = 0;
@@ -101,13 +102,14 @@ void pioneer::OnUpdate(const common::UpdateInfo &)
     current_time = this->model->GetWorld()->SimTime();
     dt = current_time.Double() - last_update_time.Double();
     last_update_time = current_time;
+    GetSensorValues();
     GetJointPosition();
     ROSMsgPublish();
     PostureGeneration();
     // SetJointPosition();
     PIDcontroller();
     SetTorque();
-    // GetSensorValues();
+
   }
 
 void pioneer::SelectMotion(const std_msgs::Float32Ptr &msg){
@@ -227,11 +229,38 @@ void pioneer::PostureGeneration()
     LL_th(3) = ref_LL_th(indext, 3);
     LL_th(4) = ref_LL_th(indext, 4);
     LL_th(5) = ref_LL_th(indext, 5);
+    if (  indext == 269 && RL_contacts.contact_size() ==0){
+    indext = indext;
+    }
+    else if (  indext == 453 && RL_contacts.contact_size() ==0){
+    indext = indext;
+    }
+    else if (  indext == 638 && RL_contacts.contact_size() ==0){
+    indext = indext;
+    }
+    else if (  indext == 638 && RL_contacts.contact_size() ==0){
+    indext = indext;
+    }
+    else if (  indext == 361 && LL_contacts.contact_size() ==0){
+    indext = indext;
+    }
+    else if (  indext == 546 && LL_contacts.contact_size() ==0){
+    indext = indext;
+    }
+    else if (  indext == 731 && LL_contacts.contact_size() ==0){
+    indext = indext;
+    }
+    else{
     indext += 1;
+    }
     time = 0;
     }
-    if (indext >=923)
-    indext = 0;
+    if (indext >=923){
+      if (RL_contacts.contact_size() ==1 && LL_contacts.contact_size() ==1)
+      indext = 0;
+      else
+      indext = 922;
+    }
  }  
   
  void pioneer::IdleMotion()
@@ -267,8 +296,8 @@ void pioneer::PIDcontroller(){
 // double kp[23] = {100,450,450,400,500,700/*Rleg*/,100,450,450,400,500,700,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
 // double kd[23] = {0.01,0.01,0.01,0.01,0.01,0.01,/*Rleg*/0.01,0.01,0.01,0.01,0.01,0.01,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
 //pdgain for 3
-double kp[23] = {100,300,250,300,320,500/*Rleg*/,100,300,250,300,320,500,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
-double kd[23] = {0.0001,0.000,0.0001,0.000,0.000,0.0001,/*Rleg*/0.0001,0.000,0.0001,0.000,0.000,0.0001,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
+double kp[23] = {100,150, 150,150,250,250/*Rleg*/,100,150,150,150,250,250,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
+double kd[23] = {0.0001,0.0001,0.0001,0.0001,0.0001,0.0001,/*Rleg*/0.0001,0.0001,0.00001,0.0001,0.0001,0.0001,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
 
 //arm degree
 ref_RA_th << 0, 90*deg2rad,0 ,0;
@@ -425,41 +454,64 @@ if (angle >0){
 
 void pioneer::GetSensor(){
 
-this->parentSensor = std::dynamic_pointer_cast<sensors::ContactSensor>(Sensor);
-
-  // Make sure the parent sensor is valid.
-  if (!this->parentSensor)
-  {
-    gzerr << "ContactPlugin requires a ContactSensor.\n";
+this->RL_Sensor = std::dynamic_pointer_cast<sensors::ContactSensor>
+( gazebo::sensors::SensorManager::Instance()->GetSensor("RL_contact_sensor"));
+  if (!this->RL_Sensor)
+  { 
+    ROS_INFO("ContactPlugin requires a RLContactSensor.\n");
+    gzerr << "ContactPlugin requires a RLContactSensor.\n";
+    return;
+  }
+this->LL_Sensor = std::dynamic_pointer_cast<sensors::ContactSensor>
+( gazebo::sensors::SensorManager::Instance()->GetSensor("LL_contact_sensor"));
+  if (!this->LL_Sensor)
+  { 
+    ROS_INFO("ContactPlugin requires a LLContactSensor.\n");
+    gzerr << "ContactPlugin requires a LLContactSensor.\n";
     return;
   }
 } 
+
 void pioneer::GetSensorValues(){
-  msgs::Contacts contacts;
-  contacts = this->parentSensor->Contacts();
-  for (unsigned int i = 0; i < contacts.contact_size(); ++i)
-  {
-    std::cout << "Collision between[" << contacts.contact(i).collision1()
-              << "] and [" << contacts.contact(i).collision2() << "]\n";
+  RL_contacts = this->RL_Sensor->Contacts();
+  // for (unsigned int i = 0; i < RL_contacts.contact_size(); ++i)
+  // {
+  //   cout << RL_contacts.contact(i).normal(0).y() <<"\n";
+    // std::cout << "Collision between[" << RL_contacts.contact(i).collision1()
+    //           << "] and [" << RL_contacts.contact(i).collision2() << "]\n";
+    // for (unsigned int j = 0; j < RL_contacts.contact(i).position_size(); ++j)
+    // {
+    //   std::cout << j << "  Position:"
+    //             << RL_contacts.contact(i).position(j).x() << " "
+    //             << RL_contacts.contact(i).position(j).y() << " "
+    //             << RL_contacts.contact(i).position(j).z() << "\n";
+    //   std::cout << "   Normal:"
+    //             << RL_contacts.contact(i).normal(j).x() << " "
+    //             << RL_contacts.contact(i).normal(j).y() << " "
+    //             << RL_contacts.contact(i).normal(j).z() << "\n";
+    //   std::cout << "   Depth:" << RL_contacts.contact(i).depth(j) << "\n";
+    // }
+//}
 
-    for (unsigned int j = 0; j < contacts.contact(i).position_size(); ++j)
-    {
-      std::cout << j << "  Position:"
-                << contacts.contact(i).position(j).x() << " "
-                << contacts.contact(i).position(j).y() << " "
-                << contacts.contact(i).position(j).z() << "\n";
-      std::cout << "   Normal:"
-                << contacts.contact(i).normal(j).x() << " "
-                << contacts.contact(i).normal(j).y() << " "
-                << contacts.contact(i).normal(j).z() << "\n";
-      std::cout << "   Depth:" << contacts.contact(i).depth(j) << "\n";
-    }
+  LL_contacts = this->LL_Sensor->Contacts();
+//   for (unsigned int i = 0; i < LL_contacts.contact_size(); ++i)
+//   {
+//     std::cout << "Collision between[" << LL_contacts.contact(i).collision1()
+//               << "] and [" << LL_contacts.contact(i).collision2() << "]\n";
+//     for (unsigned int j = 0; j < LL_contacts.contact(i).position_size(); ++j)
+//     {
+//       std::cout << j << "  Position:"
+//                 << LL_contacts.contact(i).position(j).x() << " "
+//                 << LL_contacts.contact(i).position(j).y() << " "
+//                 << LL_contacts.contact(i).position(j).z() << "\n";
+//       std::cout << "   Normal:"
+//                 << LL_contacts.contact(i).normal(j).x() << " "
+//                 << LL_contacts.contact(i).normal(j).y() << " "
+//                 << LL_contacts.contact(i).normal(j).z() << "\n";
+//       std::cout << "   Depth:" << LL_contacts.contact(i).depth(j) << "\n";
+//     }
+// }
 
 }
-
-
-
-}
-
 
 }
