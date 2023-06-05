@@ -405,7 +405,8 @@ MatrixXd Foot::LF_zsimulation_straightwalk() {
 		if (time < 1.55 * walktime) {
 			Footpos[i] = 0;
 		}
-		else if (time < 1.75 * walktime) {
+		else if (time < 1.75 
+		* walktime) {
 			Footpos[i] = Step(time - 1.55 * walktime);
 		}
 		else if (time < 1.95 * walktime) {

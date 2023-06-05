@@ -25,10 +25,12 @@ void pioneer::Load(ModelPtr _model, sdf::ElementPtr)
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&pioneer::OnUpdate, this, _1));
     this->RL_Sensor->SetActive(true);
     this->LL_Sensor->SetActive(true);
+    this->ImuSensor->SetActive(true);
     time = 0;
     indext = 0;
     angle = 0;
-
+    all_theta_data = fopen("/home/jaemin/all_theta_data.dat", "w");
+    // link_pos = fopen("/home/jaemin/link_pos", "w");
   }
 
 void pioneer::InitROSPubSetting()
@@ -109,6 +111,7 @@ void pioneer::OnUpdate(const common::UpdateInfo &)
     // SetJointPosition();
     PIDcontroller();
     SetTorque();
+    MakeMatlabFile();
 
   }
 
@@ -229,25 +232,22 @@ void pioneer::PostureGeneration()
     LL_th(3) = ref_LL_th(indext, 3);
     LL_th(4) = ref_LL_th(indext, 4);
     LL_th(5) = ref_LL_th(indext, 5);
-    if (  indext == 269 && RL_contacts.contact_size() ==0){
+    if (  indext == simt*1.75 && RL_contacts.contact_size() ==0){
     indext = indext;
     }
-    else if (  indext == 453 && RL_contacts.contact_size() ==0){
+    else if (  indext == simt*2.75 && RL_contacts.contact_size() ==0){
     indext = indext;
     }
-    else if (  indext == 638 && RL_contacts.contact_size() ==0){
+    else if (  indext == simt*3.75 && RL_contacts.contact_size() ==0){
     indext = indext;
     }
-    else if (  indext == 638 && RL_contacts.contact_size() ==0){
+    else if (  indext == simt*1.25 && LL_contacts.contact_size() ==0){
     indext = indext;
     }
-    else if (  indext == 361 && LL_contacts.contact_size() ==0){
+    else if (  indext == simt*2.25 && LL_contacts.contact_size() ==0){
     indext = indext;
     }
-    else if (  indext == 546 && LL_contacts.contact_size() ==0){
-    indext = indext;
-    }
-    else if (  indext == 731 && LL_contacts.contact_size() ==0){
+    else if (  indext == simt*3.25 && LL_contacts.contact_size() ==0){
     indext = indext;
     }
     else{
@@ -296,7 +296,7 @@ void pioneer::PIDcontroller(){
 // double kp[23] = {100,450,450,400,500,700/*Rleg*/,100,450,450,400,500,700,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
 // double kd[23] = {0.01,0.01,0.01,0.01,0.01,0.01,/*Rleg*/0.01,0.01,0.01,0.01,0.01,0.01,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
 //pdgain for 3
-double kp[23] = {100,150, 150,150,250,250/*Rleg*/,100,150,150,150,250,250,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
+double kp[23] = {100,150, 150,150,150,150/*Rleg*/,100,150,150,150,150,150,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
 double kd[23] = {0.0001,0.0001,0.0001,0.0001,0.0001,0.0001,/*Rleg*/0.0001,0.0001,0.00001,0.0001,0.0001,0.0001,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
 
 //arm degree
@@ -456,62 +456,46 @@ void pioneer::GetSensor(){
 
 this->RL_Sensor = std::dynamic_pointer_cast<sensors::ContactSensor>
 ( gazebo::sensors::SensorManager::Instance()->GetSensor("RL_contact_sensor"));
-  if (!this->RL_Sensor)
-  { 
+if (!this->RL_Sensor)
+{
     ROS_INFO("ContactPlugin requires a RLContactSensor.\n");
     gzerr << "ContactPlugin requires a RLContactSensor.\n";
     return;
-  }
+}
 this->LL_Sensor = std::dynamic_pointer_cast<sensors::ContactSensor>
-( gazebo::sensors::SensorManager::Instance()->GetSensor("LL_contact_sensor"));
-  if (!this->LL_Sensor)
-  { 
+(gazebo::sensors::SensorManager::Instance()->GetSensor("LL_contact_sensor"));
+if (!this->LL_Sensor)
+{
     ROS_INFO("ContactPlugin requires a LLContactSensor.\n");
     gzerr << "ContactPlugin requires a LLContactSensor.\n";
     return;
-  }
+}
+
+this->ImuSensor = std::dynamic_pointer_cast<gazebo::sensors::ImuSensor>
+(gazebo::sensors::SensorManager::Instance()->GetSensor("imu_sensor"));
+if (!this->ImuSensor)
+{
+    std::cerr << "IMU sensor not found!" << std::endl;
+    return;
+}
 } 
 
-void pioneer::GetSensorValues(){
-  RL_contacts = this->RL_Sensor->Contacts();
-  // for (unsigned int i = 0; i < RL_contacts.contact_size(); ++i)
-  // {
-  //   cout << RL_contacts.contact(i).normal(0).y() <<"\n";
-    // std::cout << "Collision between[" << RL_contacts.contact(i).collision1()
-    //           << "] and [" << RL_contacts.contact(i).collision2() << "]\n";
-    // for (unsigned int j = 0; j < RL_contacts.contact(i).position_size(); ++j)
-    // {
-    //   std::cout << j << "  Position:"
-    //             << RL_contacts.contact(i).position(j).x() << " "
-    //             << RL_contacts.contact(i).position(j).y() << " "
-    //             << RL_contacts.contact(i).position(j).z() << "\n";
-    //   std::cout << "   Normal:"
-    //             << RL_contacts.contact(i).normal(j).x() << " "
-    //             << RL_contacts.contact(i).normal(j).y() << " "
-    //             << RL_contacts.contact(i).normal(j).z() << "\n";
-    //   std::cout << "   Depth:" << RL_contacts.contact(i).depth(j) << "\n";
-    // }
-//}
+void pioneer::GetSensorValues(){RL_contacts = this->RL_Sensor->Contacts();
+LL_contacts = this->LL_Sensor->Contacts();
+ignition::math::Vector3d angularVelocity = ImuSensor->AngularVelocity();
+ignition::math::Vector3d linearAcceleration = ImuSensor->LinearAcceleration();
+cout << "angularVelocity : " << angularVelocity<<endl;
+}
 
-  LL_contacts = this->LL_Sensor->Contacts();
-//   for (unsigned int i = 0; i < LL_contacts.contact_size(); ++i)
-//   {
-//     std::cout << "Collision between[" << LL_contacts.contact(i).collision1()
-//               << "] and [" << LL_contacts.contact(i).collision2() << "]\n";
-//     for (unsigned int j = 0; j < LL_contacts.contact(i).position_size(); ++j)
-//     {
-//       std::cout << j << "  Position:"
-//                 << LL_contacts.contact(i).position(j).x() << " "
-//                 << LL_contacts.contact(i).position(j).y() << " "
-//                 << LL_contacts.contact(i).position(j).z() << "\n";
-//       std::cout << "   Normal:"
-//                 << LL_contacts.contact(i).normal(j).x() << " "
-//                 << LL_contacts.contact(i).normal(j).y() << " "
-//                 << LL_contacts.contact(i).normal(j).z() << "\n";
-//       std::cout << "   Depth:" << LL_contacts.contact(i).depth(j) << "\n";
-//     }
-// }
+void pioneer::MakeMatlabFile(){
+    theta_count +=1;
+    fprintf(all_theta_data, "%d ", theta_count);
+    for (int i = 0; i < 11; i++){
+        fprintf(all_theta_data, "%lf ", sensor_th[i]);
+    }
+    fprintf(all_theta_data, "%lf\n", sensor_th[11]);
 
 }
+
 
 }
