@@ -30,7 +30,7 @@ void pioneer::Load(ModelPtr _model, sdf::ElementPtr)
     indext = 0;
     angle = 0;
     all_theta_data = fopen("/home/jaemin/all_theta_data.dat", "w");
-    // link_pos = fopen("/home/jaemin/link_pos", "w");
+    Imu_pos = fopen("/home/jaemin/Imu_pos.dat", "w");
   }
 
 void pioneer::InitROSPubSetting()
@@ -255,7 +255,7 @@ void pioneer::PostureGeneration()
     }
     time = 0;
     }
-    if (indext >=923){
+    if (indext >= ref_RL_th.rows()){
       if (RL_contacts.contact_size() ==1 && LL_contacts.contact_size() ==1)
       indext = 0;
       else
@@ -480,22 +480,40 @@ if (!this->ImuSensor)
 }
 } 
 
-void pioneer::GetSensorValues(){RL_contacts = this->RL_Sensor->Contacts();
+void pioneer::GetSensorValues(){
+RL_contacts = this->RL_Sensor->Contacts();
 LL_contacts = this->LL_Sensor->Contacts();
-ignition::math::Vector3d angularVelocity = ImuSensor->AngularVelocity();
-ignition::math::Vector3d linearAcceleration = ImuSensor->LinearAcceleration();
-cout << "angularVelocity : " << angularVelocity<<endl;
+angularVelocity = ImuSensor->AngularVelocity(false);
+linearAcceleration = ImuSensor->LinearAcceleration(false);
+body_quat = this->ImuSensor->Orientation();
+
+ignition::math::Matrix3d m(body_quat);
+body_rotation_matrix << m(0, 0), m(0, 1), m(0, 2),
+                        m(1, 0), m(1, 1), m(1, 2),
+                        m(2, 0), m(2, 1), m(2, 2);
+body_roll = body_quat.Euler()[0];
+body_pitch = body_quat.Euler()[1];
+
+
+
 }
 
 void pioneer::MakeMatlabFile(){
-    theta_count +=1;
-    fprintf(all_theta_data, "%d ", theta_count);
-    for (int i = 0; i < 11; i++){
-        fprintf(all_theta_data, "%lf ", sensor_th[i]);
-    }
-    fprintf(all_theta_data, "%lf\n", sensor_th[11]);
+theta_count += 1;
+fprintf(all_theta_data, "%d ", theta_count);
+for (int i = 0; i < 11; i++)
+{
+    fprintf(all_theta_data, "%lf ", sensor_th[i]);
+}
+fprintf(all_theta_data, "%lf\n", sensor_th[11]);
+
+fprintf(Imu_pos,"%d %lf %lf\n", theta_count, body_roll, body_pitch);
+
 
 }
 
+void pioneer::KalmanFilterEstimate(){
+
+}
 
 }

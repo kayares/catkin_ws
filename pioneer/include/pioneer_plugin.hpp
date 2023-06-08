@@ -114,6 +114,14 @@ namespace gazebo
         VectorXd prev_position = VectorXd::Zero(23);
         VectorXd torque = VectorXd::Zero(23);
 
+        //about IMU
+        ignition::math::Vector3d angularVelocity;
+        ignition::math::Vector3d linearAcceleration;
+        ignition::math::Quaterniond body_quat;
+        MatrixXd body_rotation_matrix = MatrixXd::Zero(3,3);
+        double body_roll, body_pitch;
+
+
         const std::vector<std::string> joint_names = {"bodyj", "RA_j1", "RA_j2", "RA_j3", "RA_j4", "LA_j1", "LA_j2", "LA_j3", "LA_j4", "Neckj_1", "Neck_j2", "RL_j1", "RL_j2", "RL_j3", "RL_j4", "RL_j5", "RL_j6", "LL_j1", "LL_j2", "LL_j3", "LL_j4", "LL_j5", "LL_j6"};
         common::Time last_update_time;
         common::Time current_time;
@@ -125,7 +133,7 @@ namespace gazebo
         // unsigned int cnt{0};
         // unsigned int start_flag{0};
         FILE *all_theta_data;
-        // FILE *link_pos;
+        FILE *Imu_pos;
         int theta_count = 0;
         ignition::math::Pose3d RL_link6_pose;
     public:
@@ -156,6 +164,7 @@ namespace gazebo
         void PIDcontroller();
         void SetTorque();
         void MakeMatlabFile();
+        void KalmanFilterEstimate();
 
 };
 GZ_REGISTER_MODEL_PLUGIN(pioneer);

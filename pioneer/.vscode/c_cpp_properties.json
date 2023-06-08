@@ -9,7 +9,8 @@
                 "/usr/include/sdformat-6.0",
                 "/opt/ros/melodic/include",
                 "/usr/include/ignition/transport4",
-                "/usr/include/ignition/msgs1"
+                "/usr/include/ignition/msgs1",
+                "${workspaceFolder}/include/rbdl/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
