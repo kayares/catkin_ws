@@ -129,6 +129,14 @@ private:
     double LL_th_FK[6] = { 0.,0.,0.,0.,0.,0. }, LL_PR_FK[6] = { 0.,0.,0.,0.,0.,0. };
     double Foot_Height = 0;
 
+    double walkfreq;
+    double walktime;
+    double stride;
+    double freq;
+    double del_t;
+    double sim_time;
+    int sim_n;
+
 public:
     BRP_Inverse_Kinematics();
     void BRP_RL_FK(double th[6], double PR[6]);
@@ -157,6 +165,13 @@ private:
     MatrixXd Motion6_RL;
     MatrixXd Motion6_LL;
     double L0 = 0.045;
+    double walkfreq;
+    double walktime;
+    double stride;
+    double freq;
+    double del_t;
+    double sim_time;
+    int sim_n;
 
 public:
 

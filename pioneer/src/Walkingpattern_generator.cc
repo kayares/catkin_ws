@@ -7,12 +7,12 @@ using namespace std;
 
 Com::Com()
 {
-	walkfreq = 1.6227;
+	walkfreq = 1.48114;
 	walktime = 1 / walkfreq;
 	stride = 0.1;
-	freq = 300;
+	freq = 500;
 	del_t = 1 / freq;
-	z_c = 0.30685;
+	z_c = 1.2*0.30583;
 	g = 9.81;
 	T_prev = 1.5;
 	NL = T_prev * freq;
@@ -241,10 +241,10 @@ MatrixXd Y_Com::YComSimulation() {
 }
 
 Foot::Foot() {
-	walkfreq = 1.6227;
+	walkfreq = 1.48114;
 	walktime = 1 / walkfreq;
 	step = 0.1;
-	freq = 300;
+	freq = 500;
 	XStep << 0, 0, 0, 0, 0, 0;
 	XStride << 0, 0, 0, 0, 0, 0;
 };
@@ -744,6 +744,15 @@ MatrixXd Foot::LF_zsimulation_rightwalk() {
 };
 
 BRP_Inverse_Kinematics::BRP_Inverse_Kinematics() {
+
+	walkfreq = 1.48114;
+	walktime = 1 / walkfreq;
+	stride = 0.1;
+	freq = 500;
+	del_t = 1 / freq;
+	sim_time = 5 * walktime;
+	sim_n = sim_time * freq;
+
 	RL_th[0] = 0. * deg2rad;      // RHY
 	RL_th[1] = 0. * deg2rad;		// RHR
 	RL_th[2] = -35. * deg2rad;	// RHP
@@ -758,16 +767,16 @@ BRP_Inverse_Kinematics::BRP_Inverse_Kinematics() {
 	LL_th[4] = -35. * deg2rad;	// LAP
 	LL_th[5] = 0. * deg2rad;		// LAR
 
-	Ref_RL_PR[0] = 0.;
+	Ref_RL_PR[0] = 40.;
 	Ref_RL_PR[1] = -L0;
-	Ref_RL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 30.;
+	Ref_RL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 40.;
 	Ref_RL_PR[3] = 0 * deg2rad;
 	Ref_RL_PR[4] = 0 * deg2rad;
 	Ref_RL_PR[5] = 0 * deg2rad;
 
-	Ref_LL_PR[0] = 0.;
+	Ref_LL_PR[0] = 40.;
 	Ref_LL_PR[1] = L0;
-	Ref_LL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 30.;
+	Ref_LL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 40.;
 	Ref_LL_PR[3] = 0 * deg2rad;
 	Ref_LL_PR[4] = 0 * deg2rad;
 	Ref_LL_PR[5] = 0 * deg2rad;
@@ -1167,13 +1176,13 @@ MatrixXd BRP_Inverse_Kinematics::BRP_RL_Simulation(MatrixXd relRFx, MatrixXd RFy
 
 	unsigned long Index_CNT = 0;
 	BRP_RL_IK(Ref_RL_PR, RL_th, RL_th_IK);
-	Matrix<double, 924, 6> RL;
-	for (Index_CNT = 0; Index_CNT < 924; Index_CNT++) {
+	MatrixXd RL;
+	for (Index_CNT = 0; Index_CNT < sim_n; Index_CNT++) {
 		int i = 0;
 
-		Ref_RL_PR[0] = 1000 * relRFx(0, Index_CNT);
+		Ref_RL_PR[0] = 40 + 1000 * relRFx(0, Index_CNT);
 		Ref_RL_PR[1] = 1000 * RFy(0, Index_CNT);
-		Ref_RL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 30. + 1000 * RFz(0, Index_CNT);
+		Ref_RL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 40. + 1000 * RFz(0, Index_CNT);
 		Ref_RL_PR[3] = 0 * deg2rad;
 		Ref_RL_PR[4] = 0 * deg2rad;
 		Ref_RL_PR[5] = 0 * deg2rad;
@@ -1209,14 +1218,14 @@ MatrixXd BRP_Inverse_Kinematics::BRP_RL_Simulation(MatrixXd relRFx, MatrixXd RFy
 MatrixXd BRP_Inverse_Kinematics::BRP_LL_Simulation(MatrixXd relLFx, MatrixXd LFy, MatrixXd LFz) {
 	unsigned long Index_CNT = 0;
 	BRP_LL_IK(Ref_LL_PR, LL_th, LL_th_IK);
-	Matrix<double, 924, 6> LL;
+	MatrixXd LL;
 
-	for (Index_CNT = 0; Index_CNT < 924; Index_CNT++) {  // ��ü �ð�
+	for (Index_CNT = 0; Index_CNT < sim_n; Index_CNT++) {  // ��ü �ð�
 		int i = 0;
 
-		Ref_LL_PR[0] = 1000 * relLFx(0, Index_CNT);
+		Ref_LL_PR[0] = 40 + 1000 * relLFx(0, Index_CNT);
 		Ref_LL_PR[1] = 1000 * LFy(0, Index_CNT);
-		Ref_LL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 30. + 1000 * LFz(0, Index_CNT);
+		Ref_LL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 40. + 1000 * LFz(0, Index_CNT);
 		Ref_LL_PR[3] = 0 * deg2rad;
 		Ref_LL_PR[4] = 0 * deg2rad;
 		Ref_LL_PR[5] = 0 * deg2rad;
@@ -1250,16 +1259,24 @@ MatrixXd BRP_Inverse_Kinematics::BRP_LL_Simulation(MatrixXd relLFx, MatrixXd LFy
 }
 
 //Motions constructor
-Motions::Motions() {};
+Motions::Motions() {
+	walkfreq = 1.48114;
+	walktime = 1 / walkfreq;
+	stride = 0.1;
+	freq = 500;
+	del_t = 1 / freq;
+	sim_time = 5 * walktime;
+	sim_n = sim_time * freq;
+};
 
 //Moton1 go straight 4step
 void Motions::Motion0() {
-	Matrix<double, 1, 924> relativeRFx = Matrix<double, 1, 924>::Zero();
-	Matrix<double, 1, 924> relativeLFx = Matrix<double, 1, 924>::Zero();
-	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, 924);
-	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, 924);
-	Matrix<double, 1, 924> relativeRFz = Matrix<double, 1, 924>::Zero();
-	Matrix<double, 1, 924> relativeLFz = Matrix<double, 1, 924>::Zero();
+	MatrixXd relativeRFx = MatrixXd::Zero(1,sim_n);
+	MatrixXd relativeLFx = MatrixXd::Zero(1,sim_n);
+	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, sim_n);
+	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, sim_n);
+	MatrixXd relativeRFz = Matrix<double, 1, 924>::Zero();
+	MatrixXd relativeLFz = Matrix<double, 1, 924>::Zero();
 	BRP_Inverse_Kinematics joint;
 	this->Motion0_RL = joint.BRP_RL_Simulation(relativeRFx, RF_yFoot, relativeRFz);
 	this->Motion0_LL = joint.BRP_LL_Simulation(relativeLFx, LF_yFoot, relativeLFz);
