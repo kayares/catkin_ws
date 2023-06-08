@@ -259,7 +259,7 @@ void pioneer::PostureGeneration()
       if (RL_contacts.contact_size() ==1 && LL_contacts.contact_size() ==1)
       indext = 0;
       else
-      indext = 922;
+      indext = indext -1;
     }
  }  
   
@@ -387,69 +387,69 @@ void pioneer::MotionMaker(){
 }
 
 void pioneer::TurningTrajectory(){
-  if (angle < 0){
-    if (indext < 296)
-    {
-      for (int i = 0; i < 55; i++){
-      ref_LL_th(296 + i,0) = angle/55*i;
-      ref_LL_th(390 + i, 0) = angle - angle/55*i;
-      }
-      for (int k = 0; k < 39; k++)
-      {
-      ref_LL_th(351+k,0) = angle;
-      }
-    }
-    else if (indext < 481)
-    {
-      for (int j = 0; j < 55; j++){ 
-      ref_LL_th(481 + j, 0) = angle/55*j;
-      ref_LL_th(575 + j, 0) = angle - angle/55*(j+1);    
-      }
-      for (int l = 0; l< 39; l++)
-      {
-      ref_LL_th(536 + l , 0) = angle;
-      }
-    }
+//   if (angle < 0){
+//     if (indext < 296)
+//     {
+//       for (int i = 0; i < 55; i++){
+//       ref_LL_th(296 + i,0) = angle/55*i;
+//       ref_LL_th(390 + i, 0) = angle - angle/55*i;
+//       }
+//       for (int k = 0; k < 39; k++)
+//       {
+//       ref_LL_th(351+k,0) = angle;
+//       }
+//     }
+//     else if (indext < 481)
+//     {
+//       for (int j = 0; j < 55; j++){ 
+//       ref_LL_th(481 + j, 0) = angle/55*j;
+//       ref_LL_th(575 + j, 0) = angle - angle/55*(j+1);    
+//       }
+//       for (int l = 0; l< 39; l++)
+//       {
+//       ref_LL_th(536 + l , 0) = angle;
+//       }
+//     }
 
-  };
+//   };
 
-if (angle >0){
-   if (indext < 204)
-    {
-      for (int i = 0; i < 55; i++){ 
-      ref_RL_th(204 + i,0) = angle/55*i;
-      ref_RL_th(298 + i, 0) = angle - angle/55*i;
-      }
-      for (int k = 0; k < 39; k++)
-      {
-      ref_RL_th(259+k,0) = angle;
-      }
-    }
-    else if (indext < 389)
-    {
-      for (int j = 0; j < 55; j++){ 
-      ref_RL_th(389 + j, 0) = angle/55*j;
-      ref_RL_th(483 + j, 0) = angle -angle/55*j;    
-      }
-      for (int l = 0; l< 39; l++)
-      {
-      ref_RL_th(444 + l , 0) = angle;
-      }
-    }
-    else if (indext < 573)
-    {
-      for (int m = 0; m < 55; m++){ 
-      ref_RL_th(573 + m, 0) = angle/55*m;
-      ref_RL_th( 667+ m, 0) = angle -angle/55*(m+1);    
-      }
-      for (int n = 0; n< 39; n++)
-      {
-      ref_RL_th(628 + n , 0) = angle;
-      }
+// if (angle >0){
+//    if (indext < 204)
+//     {
+//       for (int i = 0; i < 55; i++){ 
+//       ref_RL_th(204 + i,0) = angle/55*i;
+//       ref_RL_th(298 + i, 0) = angle - angle/55*i;
+//       }
+//       for (int k = 0; k < 39; k++)
+//       {
+//       ref_RL_th(259+k,0) = angle;
+//       }
+//     }
+//     else if (indext < 389)
+//     {
+//       for (int j = 0; j < 55; j++){ 
+//       ref_RL_th(389 + j, 0) = angle/55*j;
+//       ref_RL_th(483 + j, 0) = angle -angle/55*j;    
+//       }
+//       for (int l = 0; l< 39; l++)
+//       {
+//       ref_RL_th(444 + l , 0) = angle;
+//       }
+//     }
+//     else if (indext < 573)
+//     {
+//       for (int m = 0; m < 55; m++){ 
+//       ref_RL_th(573 + m, 0) = angle/55*m;
+//       ref_RL_th( 667+ m, 0) = angle -angle/55*(m+1);    
+//       }
+//       for (int n = 0; n< 39; n++)
+//       {
+//       ref_RL_th(628 + n , 0) = angle;
+//       }
 
-    }
+//     }
 
-};
+// };
 };
 
 void pioneer::GetSensor(){

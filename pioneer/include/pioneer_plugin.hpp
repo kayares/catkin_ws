@@ -84,9 +84,12 @@ namespace gazebo
         int indext = 0; 
         float angle;
         float mode = 0;
-        double walkfreq = 1.6227;
+        double walkfreq = 1.48114;
 	    double walktime = 1 / walkfreq;
-        double simt = walktime * 300;
+        double freq = 500;
+        double simt = walktime * 500;
+        double sim_time = 5 * walktime;
+	    int sim_n = sim_time * freq;
 
         MatrixXd ref_RL_th;
         MatrixXd ref_LL_th;
