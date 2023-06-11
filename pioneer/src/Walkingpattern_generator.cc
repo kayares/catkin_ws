@@ -12,7 +12,7 @@ Com::Com()
 	stride = 0.1;
 	freq = 500;
 	del_t = 1 / freq;
-	z_c = 1.2*0.30583;
+	z_c = 1.2 * 0.30583;
 	g = 9.81;
 	T_prev = 1.5;
 	NL = T_prev * freq;
@@ -44,10 +44,10 @@ Com::Com()
 	A_p = Matrix4d::Identity();
 	A_p.block<4, 3>(0, 1) = F_p;
 
-	K_p << 110.363460414711, 6034.86496714319, 1076.80352169085, 2.01775079671134,
-		6034.86496714319, 342987.524401704, 61270.9711600453, 127.336198224114,
-		1076.80352169085, 61270.9711600453, 10946.3918902541, 22.9290015536304,
-		2.01775079671134, 127.336198224114, 22.9290015536304, 0.0810538784050024;
+	K_p << 198.633829737069,	19628.3822432368,	3818.23902165455,	4.21279595103775,
+		19628.3822432368,	1989741.22570983,	387263.130714345,	466.908230988326,
+		3818.23902165455,	387263.130714345,	75375.0546442415,	91.2815487187198,
+		4.21279595103775,	466.908230988326,	91.2815487187198,	0.190908542883096;
 
 	Gi = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * I_p;
 	Gx = (R + B_p.transpose() * K_p * B_p).inverse() * B_p.transpose() * K_p * F_p;
@@ -179,7 +179,74 @@ MatrixXd Y_Com::YComSimulation() {
 	for (int i = 0; i < sim_n; i++) {
 		double time = i * del_t;
 		if (time < 1 * walktime) {
-		zmp_ref[i] = 0;
+			zmp_ref[i] = 0;
+		}
+		else if (time < 1.5 * walktime) {
+			zmp_ref[i] = Ref_Ypos[0];
+		}
+		else if (time < 2 * walktime) {
+			zmp_ref[i] = Ref_Ypos[1];
+		}
+		else if (time < 2.5 * walktime) {
+			zmp_ref[i] = Ref_Ypos[2];
+		}
+		else if (time < 3 * walktime) {
+			zmp_ref[i] = Ref_Ypos[3];
+		}
+		else if (time < 3.5 * walktime) {
+			zmp_ref[i] = Ref_Ypos[4];
+		}
+		else if (time < 4 * walktime) {
+			zmp_ref[i] = Ref_Ypos[5];
+		}
+		else
+			zmp_ref[i] = 0;
+	}
+	RowVectorXd zmp_ref_fifo(NL);
+	RowVectorXd u(sim_n);
+	RowVectorXd zmp(sim_n);
+	RowVectorXd zmp_ref_final(sim_n);
+	RowVectorXd CP(sim_n);
+	MatrixXd YCom(3, sim_n + 1);
+	YCom = MatrixXd::Zero(3, sim_n + 1);
+	double w = sqrt(g / z_c);
+	for (int i = 0; i < sim_n; i++) {
+		for (int j = 0; j < NL; j++) {
+			if (i + j < sim_n) {
+				zmp_ref_fifo[j] = zmp_ref[i + j];
+			}
+			else {
+				zmp_ref_fifo[j] = zmp_ref[sim_n - 1];
+			}
+		}
+		u_prev = 0;
+		for (int j = 0; j < NL; j++) {
+			u_prev += Gd(j, 0) * zmp_ref_fifo[j];
+		}
+		u[i] = Gi * zmp_err_int - Gx * YCom.col(i) + u_prev;
+
+		YCom.col(i + 1) = A * YCom.col(i) + B * u[i];
+
+		zmp[i] = C * YCom.col(i);
+
+		zmp_err_int += (zmp_ref[i] - zmp[i]);
+
+		CP[i] = YCom(0, i) + 1 / w * YCom(1, i);
+
+		zmp_ref_final[i] = zmp_ref[i];
+
+	}
+	this->YCom = YCom;
+	return YCom;
+}
+
+MatrixXd Y_Com::YComSimulation_sidewalk() {
+	PreviewGd();
+	RowVectorXd zmp_ref(sim_n);
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+		if (time < 1 * walktime) {
+			zmp_ref[i] = 0;
 		}
 		else if (time < 1.5 * walktime) {
 			zmp_ref[i] = Ref_Ypos[0];
@@ -405,8 +472,8 @@ MatrixXd Foot::LF_zsimulation_straightwalk() {
 		if (time < 1.55 * walktime) {
 			Footpos[i] = 0;
 		}
-		else if (time < 1.75 
-		* walktime) {
+		else if (time < 1.75
+			* walktime) {
 			Footpos[i] = Step(time - 1.55 * walktime);
 		}
 		else if (time < 1.95 * walktime) {
@@ -753,6 +820,7 @@ BRP_Inverse_Kinematics::BRP_Inverse_Kinematics() {
 	sim_time = 5 * walktime;
 	sim_n = sim_time * freq;
 
+
 	RL_th[0] = 0. * deg2rad;      // RHY
 	RL_th[1] = 0. * deg2rad;		// RHR
 	RL_th[2] = -35. * deg2rad;	// RHP
@@ -769,14 +837,14 @@ BRP_Inverse_Kinematics::BRP_Inverse_Kinematics() {
 
 	Ref_RL_PR[0] = 40.;
 	Ref_RL_PR[1] = -L0;
-	Ref_RL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 40.;
+	Ref_RL_PR[2] = -L1 - L2 - L3 - L4 - L5 - L6 + 40.;
 	Ref_RL_PR[3] = 0 * deg2rad;
 	Ref_RL_PR[4] = 0 * deg2rad;
 	Ref_RL_PR[5] = 0 * deg2rad;
 
 	Ref_LL_PR[0] = 40.;
 	Ref_LL_PR[1] = L0;
-	Ref_LL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 40.;
+	Ref_LL_PR[2] = -L1 - L2 - L3 - L4 - L5 - L6 + 40.;
 	Ref_LL_PR[3] = 0 * deg2rad;
 	Ref_LL_PR[4] = 0 * deg2rad;
 	Ref_LL_PR[5] = 0 * deg2rad;
@@ -1172,37 +1240,32 @@ void BRP_Inverse_Kinematics::inv_mat6(int m, int n, double Mat4[][4], double Mat
 
 }
 
-MatrixXd BRP_Inverse_Kinematics::BRP_RL_Simulation(MatrixXd relRFx, MatrixXd RFy, MatrixXd RFz) {
+MatrixXd BRP_Inverse_Kinematics::BRP_RL_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz) {
 
 	unsigned long Index_CNT = 0;
 	BRP_RL_IK(Ref_RL_PR, RL_th, RL_th_IK);
-	MatrixXd RL;
+	MatrixXd RL = MatrixXd::Zero(sim_n,6);
 	for (Index_CNT = 0; Index_CNT < sim_n; Index_CNT++) {
 		int i = 0;
-
-		Ref_RL_PR[0] = 40 + 1000 * relRFx(0, Index_CNT);
+		Ref_RL_PR[0] = 40 + 1000 * RFx(0, Index_CNT);
 		Ref_RL_PR[1] = 1000 * RFy(0, Index_CNT);
-		Ref_RL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 40. + 1000 * RFz(0, Index_CNT);
+		Ref_RL_PR[2] = -L1 - L2 - L3 - L4 - L5 - L6 + 40. + 1000 * RFz(0, Index_CNT);
 		Ref_RL_PR[3] = 0 * deg2rad;
 		Ref_RL_PR[4] = 0 * deg2rad;
 		Ref_RL_PR[5] = 0 * deg2rad;
-
 		if (Index_CNT == 0) {
 
 			RL_th[0] = 0. * deg2rad;
 			RL_th[1] = 0. * deg2rad;
-			RL_th[2] = -35. * deg2rad; 	//  
-			RL_th[3] = 70. * deg2rad;		// RKN
-			RL_th[4] = -35. * deg2rad;    // RAP
+			RL_th[2] = -15. * deg2rad; 	//  
+			RL_th[3] = 30. * deg2rad;		// RKN
+			RL_th[4] = -15. * deg2rad;    // RAP
 			RL_th[5] = 0. * deg2rad;		// RAR
-
-
 		}
 		BRP_RL_IK(Ref_RL_PR, RL_th, RL_th_IK);
 		for (i = 0; i < 6; i++) {
 
 			RL_th[i] = RL_th_IK[i];
-
 		}
 		RL(Index_CNT, 0) = RL_th[0];
 		RL(Index_CNT, 1) = RL_th[1];
@@ -1210,35 +1273,32 @@ MatrixXd BRP_Inverse_Kinematics::BRP_RL_Simulation(MatrixXd relRFx, MatrixXd RFy
 		RL(Index_CNT, 3) = RL_th[3];
 		RL(Index_CNT, 4) = RL_th[4];
 		RL(Index_CNT, 5) = RL_th[5];
-
 	}
 	return RL;
 };
 
-MatrixXd BRP_Inverse_Kinematics::BRP_LL_Simulation(MatrixXd relLFx, MatrixXd LFy, MatrixXd LFz) {
+MatrixXd BRP_Inverse_Kinematics::BRP_LL_Simulation(MatrixXd LFx, MatrixXd LFy, MatrixXd LFz) {
 	unsigned long Index_CNT = 0;
 	BRP_LL_IK(Ref_LL_PR, LL_th, LL_th_IK);
-	MatrixXd LL;
+	MatrixXd LL = MatrixXd::Zero(sim_n,6);
 
-	for (Index_CNT = 0; Index_CNT < sim_n; Index_CNT++) {  // ��ü �ð�
+	for (Index_CNT = 0; Index_CNT < sim_n; Index_CNT++) {  
 		int i = 0;
 
-		Ref_LL_PR[0] = 40 + 1000 * relLFx(0, Index_CNT);
+		Ref_LL_PR[0] = 40 + 1000 * LFx(0, Index_CNT);
 		Ref_LL_PR[1] = 1000 * LFy(0, Index_CNT);
-		Ref_LL_PR[2] = -L1 -L2 -L3 - L4 - L5 - L6 + 40. + 1000 * LFz(0, Index_CNT);
+		Ref_LL_PR[2] = -L1 - L2 - L3 - L4 - L5 - L6 + 40. + 1000 * LFz(0, Index_CNT);
 		Ref_LL_PR[3] = 0 * deg2rad;
 		Ref_LL_PR[4] = 0 * deg2rad;
 		Ref_LL_PR[5] = 0 * deg2rad;
-
-
 
 		if (Index_CNT == 0) {
 
 			LL_th[0] = 0. * deg2rad;		// LHY
 			LL_th[1] = 0. * deg2rad;		// LHR
-			LL_th[2] = -35. * deg2rad;	// LHP
-			LL_th[3] = 70. * deg2rad;		// LKN
-			LL_th[4] = -35. * deg2rad;	// LAP
+			LL_th[2] = -15. * deg2rad;	// LHP
+			LL_th[3] = 30. * deg2rad;		// LKN
+			LL_th[4] = -15. * deg2rad;	// LAP
 			LL_th[5] = 0. * deg2rad;		// LAR
 
 		};
@@ -1267,16 +1327,21 @@ Motions::Motions() {
 	del_t = 1 / freq;
 	sim_time = 5 * walktime;
 	sim_n = sim_time * freq;
+
+	Motion0_RL = MatrixXd::Zero(6, sim_n);
+	Motion0_LL = MatrixXd::Zero(6, sim_n);
+	//Motion1_RL = MatrixXd::Zero(6, sim_n);
+	//Motion1_LL = MatrixXd::Zero(6, sim_n);
 };
 
 //Moton1 go straight 4step
 void Motions::Motion0() {
-	MatrixXd relativeRFx = MatrixXd::Zero(1,sim_n);
-	MatrixXd relativeLFx = MatrixXd::Zero(1,sim_n);
+	MatrixXd relativeRFx = MatrixXd::Zero(1, sim_n);
+	MatrixXd relativeLFx = MatrixXd::Zero(1, sim_n);
 	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, sim_n);
 	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, sim_n);
-	MatrixXd relativeRFz = MatrixXd::Zero(1,sim_n);
-	MatrixXd relativeLFz = MatrixXd::Zero(1,sim_n);
+	MatrixXd relativeRFz = MatrixXd::Zero(1, sim_n);
+	MatrixXd relativeLFz = MatrixXd::Zero(1, sim_n);
 	BRP_Inverse_Kinematics joint;
 	this->Motion0_RL = joint.BRP_RL_Simulation(relativeRFx, RF_yFoot, relativeRFz);
 	this->Motion0_LL = joint.BRP_LL_Simulation(relativeLFx, LF_yFoot, relativeLFz);
@@ -1323,14 +1388,14 @@ void Motions::Motion2() {
 	Y_Com YCOM;
 	Foot Foot;
 	YCOM.Change_Ref_Ypos(0, -L0, 2 * L0, 0, 3 * L0, 2 * L0);
-	MatrixXd Ycom = YCOM.YComSimulation();
+	MatrixXd Ycom = YCOM.YComSimulation_sidewalk();
 	Foot.Change_step(L0);
 	MatrixXd RF_yFoot = Foot.RF_ysimulation_leftwalk();
 	MatrixXd LF_yFoot = Foot.LF_ysimulation_leftwalk();
 	MatrixXd RF_zFoot = Foot.RF_zsimulation_leftwalk();
 	MatrixXd LF_zFoot = Foot.LF_zsimulation_leftwalk();
-	MatrixXd relativeRFx = MatrixXd::Zero(1,sim_n);
-	MatrixXd relativeLFx = MatrixXd::Zero(1,sim_n);
+	MatrixXd relativeRFx = MatrixXd::Zero(1, sim_n);
+	MatrixXd relativeLFx = MatrixXd::Zero(1, sim_n);
 	MatrixXd relativeRFy = RF_yFoot.block(0, 0, RF_yFoot.rows(), sim_n) - Ycom.block(0, 0, RF_yFoot.rows(), sim_n);
 	MatrixXd relativeLFy = LF_yFoot.block(0, 0, LF_yFoot.rows(), sim_n) - Ycom.block(0, 0, LF_yFoot.rows(), sim_n);
 	BRP_Inverse_Kinematics joint;
@@ -1353,8 +1418,8 @@ void Motions::Motion3() {
 	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, sim_n);
 	MatrixXd RF_zFoot = Foot.RF_zsimulation_straightwalk();
 	MatrixXd LF_zFoot = Foot.LF_zsimulation_straightwalk();
-	MatrixXd relativeRFx = MatrixXd::Zero(1,sim_n);
-	MatrixXd relativeLFx = MatrixXd::Zero(1,sim_n);
+	MatrixXd relativeRFx = MatrixXd::Zero(1, sim_n);
+	MatrixXd relativeLFx = MatrixXd::Zero(1, sim_n);
 	MatrixXd relativeRFy = RF_yFoot - Ycom.block(0, 0, RF_yFoot.rows(), sim_n);
 	MatrixXd relativeLFy = LF_yFoot - Ycom.block(0, 0, LF_yFoot.rows(), sim_n);
 	BRP_Inverse_Kinematics joint;
@@ -1373,14 +1438,14 @@ void Motions::Motion4() {
 	Y_Com YCOM;
 	Foot Foot;
 	YCOM.Change_Ref_Ypos(0, L0, -2 * L0, 0, -3 * L0, -2 * L0);
-	MatrixXd Ycom = YCOM.YComSimulation();
+	MatrixXd Ycom = YCOM.YComSimulation_sidewalk();
 	Foot.Change_step(-L0);
 	MatrixXd RF_yFoot = Foot.RF_ysimulation_rightwalk();
 	MatrixXd LF_yFoot = Foot.LF_ysimulation_rightwalk();
 	MatrixXd RF_zFoot = Foot.RF_zsimulation_rightwalk();
 	MatrixXd LF_zFoot = Foot.LF_zsimulation_rightwalk();
-	MatrixXd relativeRFx = MatrixXd::Zero(1,sim_n);
-	MatrixXd relativeLFx = MatrixXd::Zero(1,sim_n);
+	MatrixXd relativeRFx = MatrixXd::Zero(1, sim_n);
+	MatrixXd relativeLFx = MatrixXd::Zero(1, sim_n);
 	MatrixXd relativeRFy = RF_yFoot.block(0, 0, RF_yFoot.rows(), sim_n) - Ycom.block(0, 0, RF_yFoot.rows(), sim_n);
 	MatrixXd relativeLFy = LF_yFoot.block(0, 0, LF_yFoot.rows(), sim_n) - Ycom.block(0, 0, LF_yFoot.rows(), sim_n);
 	BRP_Inverse_Kinematics joint;
@@ -1426,7 +1491,7 @@ MatrixXd Motions::Return_Motion5_LL() {
 	return Motion5_LL;
 };
 
-void Motions::Motion6(){
+void Motions::Motion6() {
 	X_Com XCOM;
 	Y_Com YCOM;
 	Foot Foot;
@@ -1455,7 +1520,6 @@ MatrixXd Motions::Return_Motion6_RL() {
 MatrixXd Motions::Return_Motion6_LL() {
 	return Motion6_LL;
 };
-
 
 
 

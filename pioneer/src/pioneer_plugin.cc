@@ -171,11 +171,11 @@ void pioneer::SetJointPosition()
     bodyj->SetPosition(0,0);
     RA_j1->SetPosition(0,0);
     RA_j2->SetPosition(0,90*deg2rad);
-    RA_j3->SetPosition(0,0);
+    RA_j3->SetPosition(0,90*deg2rad);
     RA_j4->SetPosition(0,0);
     LA_j1->SetPosition(0,0);
     LA_j2->SetPosition(0,-90*deg2rad);
-    LA_j3->SetPosition(0,0);
+    LA_j3->SetPosition(0,-90*deg2rad);
     LA_j4->SetPosition(0,0);
     Neck_j1->SetPosition(0,0);
     Neck_j2->SetPosition(0,0);
@@ -219,7 +219,7 @@ void pioneer::PositionCallback(const std_msgs::Float32Ptr &msg)
 void pioneer::PostureGeneration()
  {
     time +=1;
-    if (time>=3){
+    if (time>=2){
     RL_th(0) = ref_RL_th(indext, 0);
     RL_th(1) = ref_RL_th(indext, 1);
     RL_th(2) = -ref_RL_th(indext, 2);
@@ -280,11 +280,11 @@ void pioneer::PostureGeneration()
     bodyj->SetPosition(0,0);
     RA_j1->SetPosition(0,0);
     RA_j2->SetPosition(0,90*deg2rad);
-    RA_j3->SetPosition(0,0);
+    RA_j3->SetPosition(0,-90*deg2rad);
     RA_j4->SetPosition(0,0);
     LA_j1->SetPosition(0,0);
     LA_j2->SetPosition(0,-90*deg2rad);
-    LA_j3->SetPosition(0,0);
+    LA_j3->SetPosition(0,90*deg2rad);
     LA_j4->SetPosition(0,0);
     Neck_j1->SetPosition(0,0);
     Neck_j2->SetPosition(0,0);
@@ -296,12 +296,12 @@ void pioneer::PIDcontroller(){
 // double kp[23] = {100,450,450,400,500,700/*Rleg*/,100,450,450,400,500,700,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
 // double kd[23] = {0.01,0.01,0.01,0.01,0.01,0.01,/*Rleg*/0.01,0.01,0.01,0.01,0.01,0.01,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
 //pdgain for 3
-double kp[23] = {100,150, 150,150,150,150/*Rleg*/,100,150,150,150,150,150,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
+double kp[23] = {600,600, 600, 600, 600,600/*Rleg*/,600,600, 600, 600, 600,600,/*Lleg*/100,100,100,100,100,100,100,100,100,100,100};
 double kd[23] = {0.0001,0.0001,0.0001,0.0001,0.0001,0.0001,/*Rleg*/0.0001,0.0001,0.00001,0.0001,0.0001,0.0001,/*Lleg*/0,0,0,0,0,0,0,0,0,0,0};
 
 //arm degree
-ref_RA_th << 0, 90*deg2rad,0 ,0;
-ref_LA_th << 0, -90*deg2rad,0 ,0;
+ref_RA_th << 0, 90*deg2rad,-90*deg2rad ,0;
+ref_LA_th << 0, -90*deg2rad,90*deg2rad ,0;
 
 //error, errordot
 for (int i = 0; i<6;i++){
