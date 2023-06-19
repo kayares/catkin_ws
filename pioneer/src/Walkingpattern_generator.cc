@@ -1360,7 +1360,7 @@ void Motions::Motion1() {
 	Foot Foot;
 	XCOM.Change_Ref_Xpos(0, 0.1, 0.2, 0.3, 0.4, 0.5);
 	MatrixXd Xcom = XCOM.XComSimulation();
-	YCOM.Change_Ref_Ypos(0.045, -0.045, 0.045, -0.045, 0.045, 0);
+	YCOM.Change_Ref_Ypos(0.045, -0.045, 0.045, -0.045, 0.045, -0.045);
 	MatrixXd Ycom = YCOM.YComSimulation();
 	Foot.Change_step(0.1);
 	MatrixXd LF_xFoot = Foot.LF_xsimulation_straightwalk();

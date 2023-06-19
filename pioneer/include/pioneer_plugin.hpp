@@ -168,6 +168,8 @@ namespace gazebo
         void SetTorque();
         void MakeMatlabFile();
         void KalmanFilterEstimate();
+        void Accel_IntegralHPF(double u);
+        void AngularV_LPF(double u);
 
 };
 GZ_REGISTER_MODEL_PLUGIN(pioneer);

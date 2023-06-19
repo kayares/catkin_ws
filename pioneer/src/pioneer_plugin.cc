@@ -29,8 +29,8 @@ void pioneer::Load(ModelPtr _model, sdf::ElementPtr)
     time = 0;
     indext = 0;
     angle = 0;
-    all_theta_data = fopen("/home/jaemin/all_theta_data.dat", "w");
-    Imu_pos = fopen("/home/jaemin/Imu_pos.dat", "w");
+    all_theta_data = fopen("/home/jaemin/matlab_codes/all_theta_data.dat", "w");
+    Imu_pos = fopen("/home/jaemin/matlab_codes/Imu_pos.dat", "w");
   }
 
 void pioneer::InitROSPubSetting()
@@ -483,8 +483,8 @@ if (!this->ImuSensor)
 void pioneer::GetSensorValues(){
 RL_contacts = this->RL_Sensor->Contacts();
 LL_contacts = this->LL_Sensor->Contacts();
-angularVelocity = ImuSensor->AngularVelocity(false);
-linearAcceleration = ImuSensor->LinearAcceleration(false);
+angularVelocity = ImuSensor->AngularVelocity();
+linearAcceleration = ImuSensor->LinearAcceleration();
 body_quat = this->ImuSensor->Orientation();
 
 ignition::math::Matrix3d m(body_quat);
@@ -507,13 +507,16 @@ for (int i = 0; i < 11; i++)
 }
 fprintf(all_theta_data, "%lf\n", sensor_th[11]);
 
-fprintf(Imu_pos,"%d %lf %lf\n", theta_count, body_roll, body_pitch);
+fprintf(Imu_pos,"%d %lf %lf %lf %lf\n", theta_count,angularVelocity.Y(),linearAcceleration.Y(), body_roll, body_pitch);
 
 
 }
 
-void pioneer::KalmanFilterEstimate(){
+void pioneer::Accel_IntegralHPF(double u){
+
+
 
 }
+
 
 }
