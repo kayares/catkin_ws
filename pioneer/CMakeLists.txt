@@ -23,6 +23,7 @@ include_directories(${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE
 
 add_library(${PROJECT_NAME} src/pioneer_plugin.cc 
                             src/Walkingpattern_generator.cc
+                            src/Wonbin_Walkingpattern_generator.cc
                             )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})

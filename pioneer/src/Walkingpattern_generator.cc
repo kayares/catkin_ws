@@ -5,6 +5,7 @@ using namespace std;
 #define rad2deg		57.295779513082323
 #define PI			3.141592653589793
 
+
 Com::Com()
 {
 	walkfreq = 1.48114;
@@ -1520,6 +1521,5 @@ MatrixXd Motions::Return_Motion6_RL() {
 MatrixXd Motions::Return_Motion6_LL() {
 	return Motion6_LL;
 };
-
 
 

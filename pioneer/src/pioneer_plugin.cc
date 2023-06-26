@@ -1,5 +1,6 @@
 #include "pioneer_plugin.hpp"
 #include "Walkingpattern_generator.hpp"
+#include "Wonbin_Walkingpattern_generator.hpp"
 #define deg2rad		0.017453292519943
 #define rad2deg		57.295779513082323
 namespace gazebo
@@ -11,7 +12,7 @@ void pioneer::Load(ModelPtr _model, sdf::ElementPtr)
     ros::init(argc, argv, "pioneer");
     ROS_INFO("JAEMIN");
 
-    sub = n.subscribe("turn_angle", 1, &pioneer::PositionCallback, this);
+    sub = n.subscribe("turn_angle", 1, &pioneer::TurnCallback, this);
     sub_motion_selector = n.subscribe("motion_selector", 1, &pioneer::SelectMotion, this);
     this->model = _model;
     jc0 = new physics::JointController(model);
@@ -108,16 +109,15 @@ void pioneer::OnUpdate(const common::UpdateInfo &)
     GetJointPosition();
     ROSMsgPublish();
     PostureGeneration();
-    // SetJointPosition();
     PIDcontroller();
     SetTorque();
-    MakeMatlabFile();
+    // MakeMatlabFile();
 
   }
 
 void pioneer::SelectMotion(const std_msgs::Float32Ptr &msg){
     mode = msg ->data;
-    ROS_INFO("mode(%f)",mode);
+    // ROS_INFO("mode(%f)",mode);
     if (indext == 0){
     if (mode == 0 ){
     ref_LL_th = ref_LL_th0;
@@ -209,7 +209,7 @@ void pioneer::GetJointPosition()
  
  }
  
-void pioneer::PositionCallback(const std_msgs::Float32Ptr &msg)
+void pioneer::TurnCallback(const std_msgs::Float32Ptr &msg)
   {
   angle = msg->data;
   ROS_INFO("angle callback(%f)",angle);
@@ -351,7 +351,8 @@ void pioneer::SetTorque(){
 }
 
 void pioneer::MotionMaker(){
-    Motions motion;
+
+    Wonbin::Motions motion;
     motion.Motion0();
     ref_LL_th0 = motion.Return_Motion0_LL();
     ref_RL_th0 = motion.Return_Motion0_RL();
@@ -387,69 +388,69 @@ void pioneer::MotionMaker(){
 }
 
 void pioneer::TurningTrajectory(){
-//   if (angle < 0){
-//     if (indext < 296)
-//     {
-//       for (int i = 0; i < 55; i++){
-//       ref_LL_th(296 + i,0) = angle/55*i;
-//       ref_LL_th(390 + i, 0) = angle - angle/55*i;
-//       }
-//       for (int k = 0; k < 39; k++)
-//       {
-//       ref_LL_th(351+k,0) = angle;
-//       }
-//     }
-//     else if (indext < 481)
-//     {
-//       for (int j = 0; j < 55; j++){ 
-//       ref_LL_th(481 + j, 0) = angle/55*j;
-//       ref_LL_th(575 + j, 0) = angle - angle/55*(j+1);    
-//       }
-//       for (int l = 0; l< 39; l++)
-//       {
-//       ref_LL_th(536 + l , 0) = angle;
-//       }
-//     }
+  if (angle < 0){
+    if (indext < 296)
+    {
+      for (int i = 0; i < 55; i++){
+      ref_LL_th(296 + i,0) = angle/55*i;
+      ref_LL_th(390 + i, 0) = angle - angle/55*i;
+      }
+      for (int k = 0; k < 39; k++)
+      {
+      ref_LL_th(351+k,0) = angle;
+      }
+    }
+    else if (indext < 481)
+    {
+      for (int j = 0; j < 55; j++){ 
+      ref_LL_th(481 + j, 0) = angle/55*j;
+      ref_LL_th(575 + j, 0) = angle - angle/55*(j+1);    
+      }
+      for (int l = 0; l< 39; l++)
+      {
+      ref_LL_th(536 + l , 0) = angle;
+      }
+    }
 
-//   };
+  };
 
-// if (angle >0){
-//    if (indext < 204)
-//     {
-//       for (int i = 0; i < 55; i++){ 
-//       ref_RL_th(204 + i,0) = angle/55*i;
-//       ref_RL_th(298 + i, 0) = angle - angle/55*i;
-//       }
-//       for (int k = 0; k < 39; k++)
-//       {
-//       ref_RL_th(259+k,0) = angle;
-//       }
-//     }
-//     else if (indext < 389)
-//     {
-//       for (int j = 0; j < 55; j++){ 
-//       ref_RL_th(389 + j, 0) = angle/55*j;
-//       ref_RL_th(483 + j, 0) = angle -angle/55*j;    
-//       }
-//       for (int l = 0; l< 39; l++)
-//       {
-//       ref_RL_th(444 + l , 0) = angle;
-//       }
-//     }
-//     else if (indext < 573)
-//     {
-//       for (int m = 0; m < 55; m++){ 
-//       ref_RL_th(573 + m, 0) = angle/55*m;
-//       ref_RL_th( 667+ m, 0) = angle -angle/55*(m+1);    
-//       }
-//       for (int n = 0; n< 39; n++)
-//       {
-//       ref_RL_th(628 + n , 0) = angle;
-//       }
+if (angle >0){
+   if (indext < 204)
+    {
+      for (int i = 0; i < 55; i++){ 
+      ref_RL_th(204 + i,0) = angle/55*i;
+      ref_RL_th(298 + i, 0) = angle - angle/55*i;
+      }
+      for (int k = 0; k < 39; k++)
+      {
+      ref_RL_th(259+k,0) = angle;
+      }
+    }
+    else if (indext < 389)
+    {
+      for (int j = 0; j < 55; j++){ 
+      ref_RL_th(389 + j, 0) = angle/55*j;
+      ref_RL_th(483 + j, 0) = angle -angle/55*j;    
+      }
+      for (int l = 0; l< 39; l++)
+      {
+      ref_RL_th(444 + l , 0) = angle;
+      }
+    }
+    else if (indext < 573)
+    {
+      for (int m = 0; m < 55; m++){ 
+      ref_RL_th(573 + m, 0) = angle/55*m;
+      ref_RL_th( 667+ m, 0) = angle -angle/55*(m+1);    
+      }
+      for (int n = 0; n< 39; n++)
+      {
+      ref_RL_th(628 + n , 0) = angle;
+      }
 
-//     }
+    }
 
-// };
+};
 };
 
 void pioneer::GetSensor(){
@@ -483,6 +484,7 @@ if (!this->ImuSensor)
 void pioneer::GetSensorValues(){
 RL_contacts = this->RL_Sensor->Contacts();
 LL_contacts = this->LL_Sensor->Contacts();
+cout << RL_contacts.contact_size();
 angularVelocity = ImuSensor->AngularVelocity();
 linearAcceleration = ImuSensor->LinearAcceleration();
 body_quat = this->ImuSensor->Orientation();
@@ -498,25 +500,23 @@ body_pitch = body_quat.Euler()[1];
 
 }
 
-void pioneer::MakeMatlabFile(){
-theta_count += 1;
-fprintf(all_theta_data, "%d ", theta_count);
-for (int i = 0; i < 11; i++)
-{
-    fprintf(all_theta_data, "%lf ", sensor_th[i]);
-}
-fprintf(all_theta_data, "%lf\n", sensor_th[11]);
+// void pioneer::MakeMatlabFile(){
+// theta_count += 1;
+// fprintf(all_theta_data, "%d ", theta_count);
+// for (int i = 0; i < 11; i++)
+// {
+//     fprintf(all_theta_data, "%lf ", sensor_th[i]);
+// }
+// fprintf(all_theta_data, "%lf\n", sensor_th[11]);
 
-fprintf(Imu_pos,"%d %lf %lf %lf %lf\n", theta_count,angularVelocity.Y(),linearAcceleration.Y(), body_roll, body_pitch);
-
-
-}
-
-void pioneer::Accel_IntegralHPF(double u){
+// fprintf(Imu_pos,"%d %lf %lf %lf %lf\n", theta_count,angularVelocity.Y(),linearAcceleration.Y(), body_roll, body_pitch);
 
 
+// }
 
-}
+// void pioneer::Accel_IntegralHPF(double u){
+
+// }
 
 
 }

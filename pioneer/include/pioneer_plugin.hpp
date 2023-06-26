@@ -13,7 +13,6 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <vector>
-
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Quaternion.h>
@@ -161,15 +160,13 @@ namespace gazebo
         void ROSMsgPublish();
         void SetJointPosition();
         void PostureGeneration();
-        void PositionCallback(const std_msgs::Float32Ptr &msg);
+        void TurnCallback(const std_msgs::Float32Ptr &msg);
         void SelectMotion(const std_msgs::Float32Ptr &msg);
         void TurningTrajectory();
         void PIDcontroller();
         void SetTorque();
         void MakeMatlabFile();
-        void KalmanFilterEstimate();
-        void Accel_IntegralHPF(double u);
-        void AngularV_LPF(double u);
+
 
 };
 GZ_REGISTER_MODEL_PLUGIN(pioneer);

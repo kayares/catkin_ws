@@ -4,6 +4,8 @@
 #include <cmath>
 using namespace Eigen;
 using namespace std;
+
+
 class Com
 {
 protected:
@@ -199,3 +201,4 @@ public:
     MatrixXd Return_Motion6_LL();
     MatrixXd Return_Motion6_RL();
 };
+
