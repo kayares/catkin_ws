@@ -86,6 +86,7 @@ namespace gazebo
         double walkfreq = 1.48114;
 	    double walktime = 1 / walkfreq;
         double freq = 500;
+        double del_t = 1/freq;
         double simt = walktime * 500;
         double sim_time = 5 * walktime;
 	    int sim_n = sim_time * freq;
@@ -106,6 +107,8 @@ namespace gazebo
         MatrixXd ref_LL_th5;
         MatrixXd ref_RL_th6;
         MatrixXd ref_LL_th6;
+        VectorXd TurningTrajectory_coeff = VectorXd::Zero(6);
+        VectorXd BackTrajectory_coeff = VectorXd::Zero(6);
         VectorXd RL_th = VectorXd::Zero(6);
         VectorXd LL_th = VectorXd::Zero(6);
         VectorXd ref_RA_th = VectorXd::Zero(4);
@@ -136,8 +139,8 @@ namespace gazebo
         // unsigned int start_flag{0};
         FILE *all_theta_data;
         FILE *Imu_pos;
+        FILE *ref_theta_data;
         int theta_count = 0;
-        ignition::math::Pose3d RL_link6_pose;
     public:
 
         pioneer() {}
@@ -162,7 +165,10 @@ namespace gazebo
         void PostureGeneration();
         void TurnCallback(const std_msgs::Float32Ptr &msg);
         void SelectMotion(const std_msgs::Float32Ptr &msg);
-        void TurningTrajectory();
+        void TurningTrajectory_LL(double angle);
+        void TurningTrajectory_RL(double angle);
+        double Turn(double t);
+        double Back(double t);
         void PIDcontroller();
         void SetTorque();
         void MakeMatlabFile();

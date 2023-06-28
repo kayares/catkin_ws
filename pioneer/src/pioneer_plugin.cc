@@ -31,7 +31,8 @@ void pioneer::Load(ModelPtr _model, sdf::ElementPtr)
     indext = 0;
     angle = 0;
     all_theta_data = fopen("/home/jaemin/matlab_codes/all_theta_data.dat", "w");
-    Imu_pos = fopen("/home/jaemin/matlab_codes/Imu_pos.dat", "w");
+    // Imu_pos = fopen("/home/jaemin/matlab_codes/Imu_pos.dat", "w");
+    ref_theta_data = fopen("/home/jaemin/matlab_codes/ref_theta_data.dat", "w");
   }
 
 void pioneer::InitROSPubSetting()
@@ -111,7 +112,7 @@ void pioneer::OnUpdate(const common::UpdateInfo &)
     PostureGeneration();
     PIDcontroller();
     SetTorque();
-    // MakeMatlabFile();
+    MakeMatlabFile();
 
   }
 
@@ -212,8 +213,16 @@ void pioneer::GetJointPosition()
 void pioneer::TurnCallback(const std_msgs::Float32Ptr &msg)
   {
   angle = msg->data;
-  ROS_INFO("angle callback(%f)",angle);
-  TurningTrajectory();
+  // ROS_INFO("angle callback(%f)",angle);
+  if (angle < 0)
+  {
+    TurningTrajectory_LL(angle);
+  }
+  else if(angle > 0)
+  {
+    TurningTrajectory_RL(angle);
+
+  }
   };
 
 void pioneer::PostureGeneration()
@@ -352,7 +361,7 @@ void pioneer::SetTorque(){
 
 void pioneer::MotionMaker(){
 
-    Wonbin::Motions motion;
+    Motions motion;
     motion.Motion0();
     ref_LL_th0 = motion.Return_Motion0_LL();
     ref_RL_th0 = motion.Return_Motion0_RL();
@@ -387,106 +396,167 @@ void pioneer::MotionMaker(){
 
 }
 
-void pioneer::TurningTrajectory_LL(){
-
-//   if (angle < 0){
-//     for (int i = 0; i < sim_n; i++) {
-//     if (simt < 1.25*walktime)
-//     {
-//       for (int i = 0; i < 55; i++){
-//       ref_LL_th(296 + i,0) = angle/55*i;
-//       ref_LL_th(390 + i, 0) = angle - angle/55*i;
-//       }
-//       for (int k = 0; k < 39; k++)
-//       {
-//       ref_LL_th(351+k,0) = angle;
-//       }
-//     }
-//     else if (indext < 481)
-//     {
-//       for (int j = 0; j < 55; j++){ 
-//       ref_LL_th(481 + j, 0) = angle/55*j;
-//       ref_LL_th(575 + j, 0) = angle - angle/55*(j+1);    
-//       }
-//       for (int l = 0; l< 39; l++)
-//       {
-//       ref_LL_th(536 + l , 0) = angle;
-//       }
-//     }
-//     }
-//   };
-
-// if (angle >0){
-//    if (indext < 204)
-//     {
-//       for (int i = 0; i < 55; i++){ 
-//       ref_RL_th(204 + i,0) = angle/55*i;
-//       ref_RL_th(298 + i, 0) = angle - angle/55*i;
-//       }
-//       for (int k = 0; k < 39; k++)
-//       {
-//       ref_RL_th(259+k,0) = angle;
-//       }
-//     }
-//     else if (indext < 389)
-//     {
-//       for (int j = 0; j < 55; j++){ 
-//       ref_RL_th(389 + j, 0) = angle/55*j;
-//       ref_RL_th(483 + j, 0) = angle -angle/55*j;    
-//       }
-//       for (int l = 0; l< 39; l++)
-//       {
-//       ref_RL_th(444 + l , 0) = angle;
-//       }
-//     }
-//     else if (indext < 573)
-//     {
-//       for (int m = 0; m < 55; m++){ 
-//       ref_RL_th(573 + m, 0) = angle/55*m;
-//       ref_RL_th( 667+ m, 0) = angle -angle/55*(m+1);    
-//       }
-//       for (int n = 0; n< 39; n++)
-//       {
-//       ref_RL_th(628 + n , 0) = angle;
-//       }
-
-//     }
-
-};
-};
-
-void pioneer::GetSensor(){
-
-this->RL_Sensor = std::dynamic_pointer_cast<sensors::ContactSensor>
-( gazebo::sensors::SensorManager::Instance()->GetSensor("RL_contact_sensor"));
-if (!this->RL_Sensor)
+void pioneer::TurningTrajectory_LL(double angle)
 {
-    ROS_INFO("ContactPlugin requires a RLContactSensor.\n");
-    gzerr << "ContactPlugin requires a RLContactSensor.\n";
-    return;
-}
-this->LL_Sensor = std::dynamic_pointer_cast<sensors::ContactSensor>
-(gazebo::sensors::SensorManager::Instance()->GetSensor("LL_contact_sensor"));
-if (!this->LL_Sensor)
-{
-    ROS_INFO("ContactPlugin requires a LLContactSensor.\n");
-    gzerr << "ContactPlugin requires a LLContactSensor.\n";
-    return;
+    Foot equationsolver;
+    this->TurningTrajectory_coeff = equationsolver.Equation_solver(0, walktime * 0.3, 0, angle);
+    this->BackTrajectory_coeff = equationsolver.Equation_solver(0, walktime * 0.3, angle, 0);
+
+    if (indext < 1.6 * walktime * 500)
+    {
+  for (int i = 0; i < sim_n; i++)
+  {
+      double time = i*del_t;
+      if (1.6 * walktime < time && time < 1.9 * walktime) 
+      {
+        ref_RL_th(i, 0) = Turn(time - 1.6 * walktime);
+      }
+      else if (1.9 * walktime < time && time < 2.1 * walktime)
+      {
+        ref_RL_th(i, 0) = angle;
+      }
+      else if (2.1 * walktime < time && time < 2.4 * walktime)
+      {
+        ref_RL_th(i, 0) = Back(time - 2.1 * walktime);
+      }
+
+  }
+    }
+    else if (indext < 2.6 * walktime * 500)
+    {
+  for (int j = 0; j < sim_n; j++)
+  {
+      double time = j*del_t;
+      if (2.6 * walktime < time && time < 2.9 * walktime) 
+      {
+        ref_RL_th(j, 0) = Turn(time - 2.6 * walktime);
+      }
+      else if (2.9 * walktime < time && time < 3.1 * walktime)
+      {
+        ref_RL_th(j, 0) = angle;
+      }
+      else if (3.1 * walktime < time && time < 3.4 * walktime)
+      {
+        ref_RL_th(j, 0) = Back(time - 3.1 * walktime);
+      }
+  }
+    }
+    else if (indext < 3.6 * walktime * 500)
+    {
+  for (int k = 0; k < sim_n; k++)
+  {
+      double time = k*del_t;
+      if (3.6 * walktime < time && time < 3.9 * walktime) // swing
+      {
+        ref_RL_th(k, 0) = Turn(time - 3.6 * walktime);
+      }
+      else if (3.9 * walktime < time && time < 4.1 * walktime)
+      {
+        ref_RL_th(k, 0) = angle;
+      }
+      else if (4.1 * walktime < time && time < 4.4 * walktime)
+      {
+        ref_RL_th(k, 0) = Back(time - 4.1 * walktime);
+      }
+  }
+    }
 }
 
-this->ImuSensor = std::dynamic_pointer_cast<gazebo::sensors::ImuSensor>
-(gazebo::sensors::SensorManager::Instance()->GetSensor("imu_sensor"));
-if (!this->ImuSensor)
-{
-    std::cerr << "IMU sensor not found!" << std::endl;
-    return;
+void pioneer::TurningTrajectory_RL(double angle){
+    Foot equationsolver;
+    this->TurningTrajectory_coeff = equationsolver.Equation_solver(0, walktime * 0.3, 0, angle);
+    this->BackTrajectory_coeff = equationsolver.Equation_solver(0, walktime * 0.3, angle, 0);
+
+    if (indext < 1.1 * walktime * 500)
+    {
+  for (int i = 0; i < sim_n; i++)
+  {
+      double time = i*del_t;
+      if (1.1 * walktime < time && time < 1.4 * walktime) 
+      {
+        ref_RL_th(i, 0) = Turn(time - 1.1 * walktime);
+      }
+      else if (1.4 * walktime < time && time < 1.6 * walktime)
+      {
+        ref_RL_th(i, 0) = angle;
+      }
+      else if (1.6 * walktime < time && time < 1.9 * walktime)
+      {
+        ref_RL_th(i, 0) = Back(time - 1.6 * walktime);
+      }
+
+  }
+    }
+    else if (indext < 2.1 * walktime * 500)
+    {
+  for (int j = 0; j < sim_n; j++)
+  {
+      double time = j*del_t;
+      if (2.1 * walktime < time && time < 2.4 * walktime) 
+      {
+        ref_RL_th(j, 0) = Turn(time - 2.1 * walktime);
+      }
+      else if (2.4 * walktime < time && time < 2.6 * walktime)
+      {
+        ref_RL_th(j, 0) = angle;
+      }
+      else if (2.6 * walktime < time && time < 2.9 * walktime)
+      {
+        ref_RL_th(j, 0) = Back(time - 2.6 * walktime);
+      }
+  }
+    }
+    else if (indext < 3.1 * walktime * 500)
+    {
+  for (int k = 0; k < sim_n; k++)
+  {
+      double time = k*del_t;
+      if (3.1 * walktime < time && time < 3.4 * walktime) // swing
+      {
+        ref_RL_th(k, 0) = Turn(time - 3.1 * walktime);
+      }
+      else if (3.4 * walktime < time && time < 3.6 * walktime)
+      {
+        ref_RL_th(k, 0) = angle;
+      }
+      else if (3.6 * walktime < time && time < 3.9 * walktime)
+      {
+        ref_RL_th(k, 0) = Back(time - 3.6 * walktime);
+      }
+  }
+    }
+
 }
-} 
+
+void pioneer::GetSensor()
+{
+
+    this->RL_Sensor = std::dynamic_pointer_cast<sensors::ContactSensor>(gazebo::sensors::SensorManager::Instance()->GetSensor("RL_contact_sensor"));
+    if (!this->RL_Sensor)
+    {
+  ROS_INFO("ContactPlugin requires a RLContactSensor.\n");
+  gzerr << "ContactPlugin requires a RLContactSensor.\n";
+  return;
+    }
+    this->LL_Sensor = std::dynamic_pointer_cast<sensors::ContactSensor>(gazebo::sensors::SensorManager::Instance()->GetSensor("LL_contact_sensor"));
+    if (!this->LL_Sensor)
+    {
+  ROS_INFO("ContactPlugin requires a LLContactSensor.\n");
+  gzerr << "ContactPlugin requires a LLContactSensor.\n";
+  return;
+    }
+
+    this->ImuSensor = std::dynamic_pointer_cast<gazebo::sensors::ImuSensor>(gazebo::sensors::SensorManager::Instance()->GetSensor("imu_sensor"));
+    if (!this->ImuSensor)
+    {
+  std::cerr << "IMU sensor not found!" << std::endl;
+  return;
+    }
+}
 
 void pioneer::GetSensorValues(){
 RL_contacts = this->RL_Sensor->Contacts();
 LL_contacts = this->LL_Sensor->Contacts();
-cout << RL_contacts.contact_size();
 angularVelocity = ImuSensor->AngularVelocity();
 linearAcceleration = ImuSensor->LinearAcceleration();
 body_quat = this->ImuSensor->Orientation();
@@ -502,23 +572,28 @@ body_pitch = body_quat.Euler()[1];
 
 }
 
-// void pioneer::MakeMatlabFile(){
-// theta_count += 1;
-// fprintf(all_theta_data, "%d ", theta_count);
-// for (int i = 0; i < 11; i++)
-// {
-//     fprintf(all_theta_data, "%lf ", sensor_th[i]);
-// }
-// fprintf(all_theta_data, "%lf\n", sensor_th[11]);
+double pioneer::Turn(double t){
+  	double X = TurningTrajectory_coeff(0) + TurningTrajectory_coeff(1) * t + TurningTrajectory_coeff(2) * pow(t, 2) + TurningTrajectory_coeff(3) * pow(t, 3) + TurningTrajectory_coeff(4) * pow(t, 4) + TurningTrajectory_coeff(5) * pow(t, 5);
+	return X;
+}
+double pioneer::Back(double t){
+  	double X = BackTrajectory_coeff(0) + BackTrajectory_coeff(1) * t + BackTrajectory_coeff(2) * pow(t, 2) + BackTrajectory_coeff(3) * pow(t, 3) + BackTrajectory_coeff(4) * pow(t, 4) + BackTrajectory_coeff(5) * pow(t, 5);
+	return X;
+}
 
-// fprintf(Imu_pos,"%d %lf %lf %lf %lf\n", theta_count,angularVelocity.Y(),linearAcceleration.Y(), body_roll, body_pitch);
+void pioneer::MakeMatlabFile(){
+theta_count += 1;
+fprintf(all_theta_data, "%d ", theta_count);
+for (int i = 0; i < 11; i++)
+{
+    fprintf(all_theta_data, "%lf ", sensor_th[i]);
+}
+fprintf(all_theta_data, "%lf\n", sensor_th[11]);
 
+fprintf(ref_theta_data, "%d ", theta_count);
+fprintf(ref_theta_data,"%lf  %lf  %lf  %lf\n",ref_RL_th(indext,0),ref_LL_th(indext,0),ref_RL_th(indext,3),ref_LL_th(indext,3));
 
-// }
-
-// void pioneer::Accel_IntegralHPF(double u){
-
-// }
+}
 
 
 }
