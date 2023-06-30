@@ -53,8 +53,7 @@ void pioneer::ROSMsgPublish()
  pub_joint_state.publish(joint_state_msg);
 }
 
-void pioneer::GetLinks()
-  {
+void pioneer::GetLinks(){
     this->base_link  = this->model->GetLink("base_link");
     this->RL_link1 = this->model->GetLink("RL_link1");
     this->RL_link2 = this->model->GetLink("RL_link2");
@@ -128,27 +127,38 @@ void pioneer::SelectMotion(const std_msgs::Float32Ptr &msg){
     ref_LL_th = ref_LL_th1;
     ref_RL_th = ref_RL_th1;
     }
-    else if (mode == 2){
+    else if (mode == 2)
+    {
     ref_LL_th = ref_LL_th2;
     ref_RL_th = ref_RL_th2;
     }
-    else if (mode == 3){
+    else if (mode == 3)
+    {
     ref_LL_th = ref_LL_th3;
     ref_RL_th = ref_RL_th3;
     }
-    else if (mode ==4){
+    else if (mode == 4)
+    {
     ref_LL_th = ref_LL_th4;
     ref_RL_th = ref_RL_th4;
     }
-    else if (mode ==5){
+    else if (mode == 5)
+    {
     ref_LL_th = ref_LL_th5;
     ref_RL_th = ref_RL_th5;
     }
-    else if (mode == 6){
-      ref_LL_th = ref_LL_th6;
-      ref_RL_th = ref_RL_th6;
+    else if (mode == 6)
+    {
+    ref_LL_th = ref_LL_th6;
+    ref_RL_th = ref_RL_th6;
     }
-    else {
+    else if (mode == 7)
+    {
+    ref_LL_th = ref_LL_th7;
+    ref_RL_th = ref_RL_th7;
+    }
+    else
+    {
     ref_LL_th = ref_LL_th0;
     ref_RL_th = ref_RL_th0;
     }
@@ -156,7 +166,7 @@ void pioneer::SelectMotion(const std_msgs::Float32Ptr &msg){
 }
 
 void pioneer::SetJointPosition()
-  {
+{
     RL_j1->SetPosition(0, RL_th(0));
     RL_j2->SetPosition(0, RL_th(1));
     RL_j3->SetPosition(0, RL_th(2));
@@ -169,21 +179,21 @@ void pioneer::SetJointPosition()
     LL_j4->SetPosition(0, LL_th(3));
     LL_j5->SetPosition(0, LL_th(4));
     LL_j6->SetPosition(0, LL_th(5));
-    bodyj->SetPosition(0,0);
-    RA_j1->SetPosition(0,0);
-    RA_j2->SetPosition(0,90*deg2rad);
-    RA_j3->SetPosition(0,90*deg2rad);
-    RA_j4->SetPosition(0,0);
-    LA_j1->SetPosition(0,0);
-    LA_j2->SetPosition(0,-90*deg2rad);
-    LA_j3->SetPosition(0,-90*deg2rad);
-    LA_j4->SetPosition(0,0);
-    Neck_j1->SetPosition(0,0);
-    Neck_j2->SetPosition(0,0);
-  }
+    bodyj->SetPosition(0, 0);
+    RA_j1->SetPosition(0, 0);
+    RA_j2->SetPosition(0, 90 * deg2rad);
+    RA_j3->SetPosition(0, 90 * deg2rad);
+    RA_j4->SetPosition(0, 0);
+    LA_j1->SetPosition(0, 0);
+    LA_j2->SetPosition(0, -90 * deg2rad);
+    LA_j3->SetPosition(0, -90 * deg2rad);
+    LA_j4->SetPosition(0, 0);
+    Neck_j1->SetPosition(0, 0);
+    Neck_j2->SetPosition(0, 0);
+}
 
 void pioneer::GetJointPosition()
-  {
+{
     sensor_th[0] = this->RL_j1->Position(0);
     sensor_th[1] = this->RL_j2->Position(0);
     sensor_th[2] = this->RL_j3->Position(0);
@@ -207,28 +217,27 @@ void pioneer::GetJointPosition()
     sensor_th[20] = this->LA_j4->Position(0);
     sensor_th[21] = this->Neck_j1->Position(0);
     sensor_th[22] = this->Neck_j2->Position(0);
- 
- }
- 
-void pioneer::TurnCallback(const std_msgs::Float32Ptr &msg)
-  {
-  angle = msg->data;
-  // ROS_INFO("angle callback(%f)",angle);
-  if (angle < 0)
-  {
-    TurningTrajectory_LL(angle);
-  }
-  else if(angle > 0)
-  {
-    TurningTrajectory_RL(angle);
+}
 
-  }
-  };
+void pioneer::TurnCallback(const std_msgs::Float32Ptr &msg)
+{
+    angle = msg->data;
+    // ROS_INFO("angle callback(%f)",angle);
+    if (angle < 0)
+    {
+    TurningTrajectory_LL(angle);
+    }
+    else if (angle > 0)
+    {
+    TurningTrajectory_RL(angle);
+    }
+};
 
 void pioneer::PostureGeneration()
- {
-    time +=1;
-    if (time>=2){
+{
+    time += 1;
+    if (time >= 2)
+    {
     RL_th(0) = ref_RL_th(indext, 0);
     RL_th(1) = ref_RL_th(indext, 1);
     RL_th(2) = -ref_RL_th(indext, 2);
@@ -241,37 +250,49 @@ void pioneer::PostureGeneration()
     LL_th(3) = ref_LL_th(indext, 3);
     LL_th(4) = ref_LL_th(indext, 4);
     LL_th(5) = ref_LL_th(indext, 5);
-    if (  indext == simt*1.75 && RL_contacts.contact_size() ==0){
+    if (indext == simt * 1.75 && RL_contacts.contact_size() == 0)
+    {
     indext = indext;
     }
-    else if (  indext == simt*2.75 && RL_contacts.contact_size() ==0){
+    else if (indext == simt * 2.75 && RL_contacts.contact_size() == 0)
+    {
     indext = indext;
     }
-    else if (  indext == simt*3.75 && RL_contacts.contact_size() ==0){
+    else if (indext == simt * 3.75 && RL_contacts.contact_size() == 0)
+    {
     indext = indext;
     }
-    else if (  indext == simt*1.25 && LL_contacts.contact_size() ==0){
+    else if (indext == simt * 1.25 && LL_contacts.contact_size() == 0)
+    {
     indext = indext;
     }
-    else if (  indext == simt*2.25 && LL_contacts.contact_size() ==0){
+    else if (indext == simt * 2.25 && LL_contacts.contact_size() == 0)
+    {
     indext = indext;
     }
-    else if (  indext == simt*3.25 && LL_contacts.contact_size() ==0){
+    else if (indext == simt * 3.25 && LL_contacts.contact_size() == 0)
+    {
     indext = indext;
     }
-    else{
+    else
+    {
     indext += 1;
     }
     time = 0;
     }
-    if (indext >= ref_RL_th.rows()){
-      if (RL_contacts.contact_size() ==1 && LL_contacts.contact_size() ==1)
-      indext = 0;
-      else
-      indext = indext -1;
+    if (indext >= ref_RL_th.rows())
+    {    
+    ref_LL_th = ref_LL_th0;
+    ref_RL_th = ref_RL_th0;
+    if (RL_contacts.contact_size() == 1 && LL_contacts.contact_size() == 1)
+    {
+    indext = 0;
     }
- }  
-  
+    else
+    indext = indext - 1;
+    }
+}
+
  void pioneer::IdleMotion()
   { 
     RL_j1->SetPosition(0, ref_RL_th0(0,0));
@@ -361,7 +382,7 @@ void pioneer::SetTorque(){
 
 void pioneer::MotionMaker(){
 
-    Motions motion;
+    Wonbin::Motions motion;
     motion.Motion0();
     ref_LL_th0 = motion.Return_Motion0_LL();
     ref_RL_th0 = motion.Return_Motion0_RL();
@@ -389,6 +410,10 @@ void pioneer::MotionMaker(){
     motion.Motion6();
     ref_LL_th6 = motion.Return_Motion6_LL();
     ref_RL_th6 = motion.Return_Motion6_RL();
+
+    motion.Motion7();
+    ref_LL_th7 = motion.Return_Motion7_LL();
+    ref_RL_th7 = motion.Return_Motion7_RL();
 
     ref_LL_th = ref_LL_th0;
     ref_RL_th = ref_RL_th0;

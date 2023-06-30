@@ -4,8 +4,6 @@
 #include <cmath>
 using namespace Eigen;
 using namespace std;
-
-
 class Com
 {
 protected:
@@ -14,7 +12,7 @@ protected:
     double stride;
     double freq;
     double del_t;
-    double z_c = 0.29507;
+    double z_c;
     double g;
     double T_prev;
     int NL;
@@ -79,7 +77,7 @@ public:
     Y_Com();
     void Change_Ref_Ypos(double a, double b, double c, double d, double e, double f);
     MatrixXd YComSimulation();
-    MatrixXd YComSimulation_sidewalk();
+
 
 };
 class Foot
@@ -114,7 +112,7 @@ public:
 class BRP_Inverse_Kinematics
 {
 private:
-    double L0 = 45;
+    double L0 = 60;
     double L1 = 35.64;
     double L2 = 36.07;
     double L3 = 136.29;
@@ -166,7 +164,13 @@ private:
     MatrixXd Motion5_LL;
     MatrixXd Motion6_RL;
     MatrixXd Motion6_LL;
-    double L0 = 0.045;
+    MatrixXd Motion7_RL;
+    MatrixXd Motion7_LL;
+    Matrix<double, 6, 1> Compensation_Support_Leg1;
+    Matrix<double, 6, 1> Compensation_Support_Leg2;
+    Matrix<double, 6, 1> Compensation_Swing_Leg1;
+    Matrix<double, 6, 1> Compensation_Swing_Leg2;
+    double L0 = 0.06;
     double walkfreq;
     double walktime;
     double stride;
@@ -186,6 +190,8 @@ public:
     void Motion4();//rightwalk 2step
     void Motion5();//go back 4step
     void Motion6();//view com movement
+    void Motion7();//view com movement
+
     MatrixXd Return_Motion0_RL();
     MatrixXd Return_Motion0_LL();
     MatrixXd Return_Motion1_RL();
@@ -200,5 +206,13 @@ public:
     MatrixXd Return_Motion5_RL();
     MatrixXd Return_Motion6_LL();
     MatrixXd Return_Motion6_RL();
-};
+    MatrixXd Return_Motion7_LL();
+    MatrixXd Return_Motion7_RL();
 
+    MatrixXd RL_Angle_Compensation(MatrixXd RL);
+    MatrixXd LL_Angle_Compensation(MatrixXd LL);
+    double Swing_Leg_Compensation1(double t);
+    double Swing_Leg_Compensation2(double t);
+    double Support_Leg_Compensation1(double t);
+    double Support_Leg_Compensation2(double t);
+};

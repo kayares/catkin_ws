@@ -5,7 +5,7 @@
 using namespace Eigen;
 using namespace std;
 class Wonbin {
-    public:
+public:
     class Com
     {
     protected:
@@ -60,6 +60,7 @@ class Wonbin {
         X_Com();
         MatrixXd XComSimulation();
     };
+   
     class Y_Com : public Com
     {
     private:
@@ -109,7 +110,10 @@ class Wonbin {
         MatrixXd LF_ysimulation_rightwalk();
         MatrixXd RF_zsimulation_rightwalk();
         MatrixXd LF_zsimulation_rightwalk();
-
+        MatrixXd RF_xsimulation_shortwalk();
+        MatrixXd LF_xsimulation_shortwalk();
+        MatrixXd RF_zsimulation_shortwalk();
+        MatrixXd LF_zsimulation_shortwalk();
     };
     class BRP_Inverse_Kinematics
     {
@@ -166,6 +170,8 @@ class Wonbin {
         MatrixXd Motion5_LL;
         MatrixXd Motion6_RL;
         MatrixXd Motion6_LL;
+        MatrixXd Motion7_RL;
+        MatrixXd Motion7_LL;
         double L0 = 0.045;
         double walkfreq;
         double walktime;
@@ -186,6 +192,8 @@ class Wonbin {
         void Motion4();//rightwalk 2step
         void Motion5();//go back 4step
         void Motion6();//view com movement
+        void Motion7();//hurdle short walk
+
         MatrixXd Return_Motion0_RL();
         MatrixXd Return_Motion0_LL();
         MatrixXd Return_Motion1_RL();
@@ -200,5 +208,8 @@ class Wonbin {
         MatrixXd Return_Motion5_RL();
         MatrixXd Return_Motion6_LL();
         MatrixXd Return_Motion6_RL();
+        MatrixXd Return_Motion7_LL();
+        MatrixXd Return_Motion7_RL();
     };
+    
 };

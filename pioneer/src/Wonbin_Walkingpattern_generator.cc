@@ -181,6 +181,7 @@ MatrixXd Wonbin::X_Com::XComSimulation() {
 	return XCom;
 };
 //수정
+
 Wonbin::Y_Com::Y_Com()
 {
 	sim_time = 8 * walktime;
@@ -291,6 +292,7 @@ MatrixXd Wonbin::Y_Com::YComSimulation() {
 	return YCom;
 }
 //수정
+
 Wonbin::Foot::Foot() {
 	walkfreq = 1.48114;
 	walktime = 1 / walkfreq;
@@ -846,19 +848,19 @@ MatrixXd Wonbin::Foot::RF_ysimulation_rightwalk() {
 			Footpos[i] = 3 * step;
 		}
 		else if (time < 3.9 * walktime) {
-			Footpos[i] = Step(time - 2.6 * walktime) + 3 * step;
+			Footpos[i] = Step(time - 3.6 * walktime) + 3 * step;
 		}
         else if (time < 4.6 * walktime) {
 			Footpos[i] = 4 * step;
 		}
         else if (time < 4.9 * walktime) {
-			Footpos[i] = Step(time - 2.6 * walktime) + 4 * step;
+			Footpos[i] = Step(time - 4.6 * walktime) + 4 * step;
 		}
         else if (time < 5.6 * walktime) {
 			Footpos[i] = 5 * step;
 		}
         else if (time < 5.9 * walktime) {
-			Footpos[i] = Step(time - 2.6 * walktime) + 5 * step;
+			Footpos[i] = Step(time - 5.6 * walktime) + 5 * step;
 		}
         else if (time < 6.6 * walktime) {
 			Footpos[i] = 6 * step;
@@ -903,19 +905,19 @@ MatrixXd Wonbin::Foot::LF_ysimulation_rightwalk() {
 			Footpos[i] = step;
 		}
 		else if (time < 4.4 * walktime) {
-			Footpos[i] = Step(time - 3.1 * walktime) + step;
+			Footpos[i] = Step(time - 4.1 * walktime) + step;
 		}
         else if (time < 5.1 * walktime) {
 			Footpos[i] = 2 * step;
 		}
 		else if (time < 5.4 * walktime) {
-			Footpos[i] = Step(time - 3.1 * walktime) + 2 * step;
+			Footpos[i] = Step(time - 5.1 * walktime) + 2 * step;
 		}
         else if (time < 6.1 * walktime) {
 			Footpos[i] = 3 * step;
 		}
 		else if (time < 6.4 * walktime) {
-			Footpos[i] = Step(time - 3.1 * walktime) + 3 * step;
+			Footpos[i] = Step(time - 6.1 * walktime) + 3 * step;
 		}
 		else {
 			Footpos[i] = 4 * step;
@@ -1065,6 +1067,257 @@ MatrixXd Wonbin::Foot::LF_zsimulation_rightwalk() {
 	return Footpos;
 };
 //수정
+
+//미세하게 움직이는거 먼저(shortwalk)
+
+MatrixXd Wonbin::Foot::RF_xsimulation_shortwalk()
+{
+	this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
+	this->XStride = Equation_solver(0, walktime * 0.3, 0, 2 * step);
+	int sim_n = 8 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos1(sim_n);
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+		if (time < 1.1 * walktime) {
+			Footpos1[i] = 0;
+		}
+		else if (time < 1.4 * walktime) {
+			Footpos1[i] = Step(time - 1.1 * walktime);
+		}
+		else if (time < 2.1 * walktime) {
+			Footpos1[i] = step;
+		}
+		else if (time < 2.4 * walktime) {
+			Footpos1[i] = Stride(time - 2.1 * walktime) + step;
+		}
+		else if (time < 3.1 * walktime) {
+			Footpos1[i] = 3 * step;
+		}
+		else if (time < 3.4 * walktime) {
+			Footpos1[i] = Stride(time - 3.1 * walktime) + 3 * step;
+		}
+		else if (time < 4.1 * walktime) {
+			Footpos1[i] = 5 * step;
+		}
+		else if (time < 4.4 * walktime) {
+			Footpos1[i] = Stride(time - 4.1 * walktime) + 5 * step;
+		}
+		else if (time < 5.1 * walktime) {
+			Footpos1[i] = 7 * step;
+		}
+		else if (time < 5.4 * walktime) {
+			Footpos1[i] = Stride(time - 5.1 * walktime) + 7 * step;
+		}
+		else if (time < 6.1 * walktime) {
+			Footpos1[i] = 9 * step;
+		}
+		else if (time < 6.4 * walktime) {
+			Footpos1[i] = Stride(time - 6.1 * walktime) + 9 * step;
+		}
+		else {
+			Footpos1[i] = 11 * step;
+		}
+
+	};
+	return Footpos1;
+
+};
+//수정
+MatrixXd Wonbin::Foot::LF_xsimulation_shortwalk() {
+	this->XStep = Equation_solver(0, walktime * 0.3, 0, step);
+	this->XStride = Equation_solver(0, walktime * 0.3, 0, 2 * step);
+	int sim_n = 8 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n);
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+
+		if (time < 1.6 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.9 * walktime) {
+			Footpos[i] = Stride(time - 1.6 * walktime);
+		}
+		else if (time < 2.6 * walktime) {
+			Footpos[i] = 2 * step;
+		}
+		else if (time < 2.9 * walktime) {
+			Footpos[i] = Stride(time - 2.6 * walktime) + 2 * step;
+		}
+		else if (time < 3.6 * walktime) {
+			Footpos[i] = 4 * step;
+		}
+		else if (time < 3.9 * walktime) {
+			Footpos[i] = Stride(time - 3.6 * walktime) + 4 * step;
+		}
+		else if (time < 4.6 * walktime) {
+			Footpos[i] = 6 * step;
+		}
+		else if (time < 4.9 * walktime) {
+			Footpos[i] = Stride(time - 4.6 * walktime) + 6 * step;
+		}
+		else if (time < 5.6 * walktime) {
+			Footpos[i] = 8 * step;
+		}
+		else if (time < 5.9 * walktime) {
+			Footpos[i] = Stride(time - 5.6 * walktime) + 8 * step;
+		}
+		else if (time < 6.6 * walktime) {
+			Footpos[i] = 10 * step;
+		}
+		else if (time < 6.9 * walktime) {
+			Footpos[i] = Step(time - 6.6 * walktime) + 10 * step;
+		}
+		else {
+			Footpos[i] = 11 * step;
+		}
+	};
+	return Footpos;
+
+
+}
+//수정
+MatrixXd Wonbin::Foot::RF_zsimulation_shortwalk()
+{
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.05);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.05, 0);
+	int sim_n = 8 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n);
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+		if (time < 1.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.25 * walktime) {
+			Footpos[i] = Step(time - 1.05 * walktime);
+		}
+		else if (time < 1.45 * walktime) {
+			Footpos[i] = Stride(time - 1.05 * walktime);
+		}
+		else if (time < 2.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 2.25 * walktime) {
+			Footpos[i] = Step(time - 2.05 * walktime);
+		}
+		else if (time < 2.45 * walktime) {
+			Footpos[i] = Stride(time - 2.05 * walktime);
+		}
+		else if (time < 3.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.25 * walktime) {
+			Footpos[i] = Step(time - 3.05 * walktime);
+		}
+		else if (time < 3.45 * walktime) {
+			Footpos[i] = Stride(time - 3.05 * walktime);
+		}
+		else if (time < 4.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 4.25 * walktime) {
+			Footpos[i] = Step(time - 4.05 * walktime);
+		}
+		else if (time < 4.45 * walktime) {
+			Footpos[i] = Stride(time - 4.05 * walktime);
+		}
+		else if (time < 5.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 5.25 * walktime) {
+			Footpos[i] = Step(time - 5.05 * walktime);
+		}
+		else if (time < 5.45 * walktime) {
+			Footpos[i] = Stride(time - 5.05 * walktime);
+		}
+		else if (time < 6.05 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 6.25 * walktime) {
+			Footpos[i] = Step(time - 6.05 * walktime);
+		}
+		else if (time < 6.45 * walktime) {
+			Footpos[i] = Stride(time - 6.05 * walktime);
+		}
+		else {
+			Footpos[i] = 0;
+		}
+	};
+	return Footpos;
+};
+//수정
+MatrixXd Wonbin::Foot::LF_zsimulation_shortwalk() {
+	this->XStep = Equation_solver(0, 0.2 * walktime, 0, 0.05);
+	this->XStride = Equation_solver(0.2 * walktime, 0.4 * walktime, 0.05, 0);
+	int sim_n = 8 * walktime * freq;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n);
+	for (int i = 0; i < sim_n; i++) {
+		double time = i * del_t;
+		if (time < 1.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 1.75 * walktime) {
+			Footpos[i] = Step(time - 1.55 * walktime);
+		}
+		else if (time < 1.95 * walktime) {
+			Footpos[i] = Stride(time - 1.55 * walktime);
+		}
+		else if (time < 2.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 2.75 * walktime) {
+			Footpos[i] = Step(time - 2.55 * walktime);
+		}
+		else if (time < 2.95 * walktime) {
+			Footpos[i] = Stride(time - 2.55 * walktime);
+		}
+		else if (time < 3.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 3.75 * walktime) {
+			Footpos[i] = Step(time - 3.55 * walktime);
+		}
+		else if (time < 3.95 * walktime) {
+			Footpos[i] = Stride(time - 3.55 * walktime);
+		}
+		else if (time < 4.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 4.75 * walktime) {
+			Footpos[i] = Step(time - 4.55 * walktime);
+		}
+		else if (time < 4.95 * walktime) {
+			Footpos[i] = Stride(time - 4.55 * walktime);
+		}
+		else if (time < 5.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 5.75 * walktime) {
+			Footpos[i] = Step(time - 5.55 * walktime);
+		}
+		else if (time < 5.95 * walktime) {
+			Footpos[i] = Stride(time - 5.55 * walktime);
+		}
+		else if (time < 6.55 * walktime) {
+			Footpos[i] = 0;
+		}
+		else if (time < 6.75 * walktime) {
+			Footpos[i] = Step(time - 6.55 * walktime);
+		}
+		else if (time < 6.95 * walktime) {
+			Footpos[i] = Stride(time - 6.55 * walktime);
+		}
+		else {
+			Footpos[i] = 0;
+		}
+	};
+	return Footpos;
+};
+
+
 Wonbin::BRP_Inverse_Kinematics::BRP_Inverse_Kinematics() {
 
 	walkfreq = 1.48114;
@@ -1589,6 +1842,7 @@ Wonbin::Motions::Motions() {
 	//Motion1_LL = MatrixXd::Zero(6, sim_n);
 };
 
+
 //Moton1 go straight 4step
 void Wonbin::Motions::Motion0() {
 	MatrixXd relativeRFx = MatrixXd::Zero(1, sim_n);
@@ -1631,7 +1885,7 @@ void Wonbin::Motions::Motion1() {
 	BRP_Inverse_Kinematics joint;
 	this->Motion1_RL = joint.BRP_RL_Simulation(relativeRFx, relativeRFy, RF_zFoot);
 	this->Motion1_LL = joint.BRP_LL_Simulation(relativeLFx, relativeLFy, LF_zFoot);
-	cout << Xcom;
+	
 }
 MatrixXd Wonbin::Motions::Return_Motion1_RL() {
 	return Motion1_RL;
@@ -1694,7 +1948,7 @@ void Wonbin::Motions::Motion4() {
 
 	Y_Com YCOM;
 	Foot Foot;
-	YCOM.Change_Ref_Ypos(0, -L0, 2 * L0, 0, 3 * L0, L0, 4 * L0, 2 * L0, 5 * L0, 3 * L0, 6 * L0, 5 * L0);
+	YCOM.Change_Ref_Ypos(0, L0, -2 * L0, 0, -3 * L0, -L0, -4 * L0, -2 * L0, -5 * L0, -3 * L0, -6 * L0, -5 * L0);
 	MatrixXd Ycom = YCOM.YComSimulation();
 	Foot.Change_step(-L0);
 	MatrixXd RF_yFoot = Foot.RF_ysimulation_rightwalk();
@@ -1778,13 +2032,39 @@ MatrixXd Wonbin::Motions::Return_Motion6_LL() {
 	return Motion6_LL;
 };
 
-int main()
-{
-	Wonbin::Motions motion;
-	motion.Motion1();
-	
 
+//Change
+void Wonbin::Motions::Motion7() {
+
+	X_Com XCOM;
+	Y_Com YCOM;
+	Foot Foot;
+	XCOM.Change_Ref_Xpos(0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22);
+	MatrixXd Xcom = XCOM.XComSimulation();
+	YCOM.Change_Ref_Ypos(0.045, -0.045, 0.045, -0.045, 0.045, -0.045, 0.045, -0.045, 0.045, -0.045, 0.045, 0);
+	MatrixXd Ycom = YCOM.YComSimulation();
+	Foot.Change_step(0.02);
+	MatrixXd LF_xFoot = Foot.LF_xsimulation_shortwalk();
+	MatrixXd RF_xFoot = Foot.RF_xsimulation_shortwalk();
+	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, sim_n);
+	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, sim_n);
+	MatrixXd RF_zFoot = Foot.RF_zsimulation_shortwalk();
+	MatrixXd LF_zFoot = Foot.LF_zsimulation_shortwalk();
+	MatrixXd relativeRFx = RF_xFoot.block(0, 0, RF_xFoot.rows(), sim_n) - Xcom.block(0, 0, RF_xFoot.rows(), sim_n);
+	MatrixXd relativeLFx = LF_xFoot.block(0, 0, LF_xFoot.rows(), sim_n) - Xcom.block(0, 0, LF_xFoot.rows(), sim_n);
+	MatrixXd relativeRFy = RF_yFoot.block(0, 0, RF_yFoot.rows(), sim_n) - Ycom.block(0, 0, RF_yFoot.rows(), sim_n);
+	MatrixXd relativeLFy = LF_yFoot.block(0, 0, LF_yFoot.rows(), sim_n) - Ycom.block(0, 0, LF_yFoot.rows(), sim_n);
+	BRP_Inverse_Kinematics joint;
+	this->Motion7_RL = joint.BRP_RL_Simulation(relativeRFx, relativeRFy, RF_zFoot);
+	this->Motion7_LL = joint.BRP_LL_Simulation(relativeLFx, relativeLFy, LF_zFoot);
 
 }
+MatrixXd Wonbin::Motions::Return_Motion7_RL() {
+	return Motion7_RL;
+};
+MatrixXd Wonbin::Motions::Return_Motion7_LL() {
+	return Motion7_LL;
+};
+
 
 

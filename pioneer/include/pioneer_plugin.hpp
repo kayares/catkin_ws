@@ -107,6 +107,9 @@ namespace gazebo
         MatrixXd ref_LL_th5;
         MatrixXd ref_RL_th6;
         MatrixXd ref_LL_th6;
+        MatrixXd ref_RL_th7;
+        MatrixXd ref_LL_th7;
+        
         VectorXd TurningTrajectory_coeff = VectorXd::Zero(6);
         VectorXd BackTrajectory_coeff = VectorXd::Zero(6);
         VectorXd RL_th = VectorXd::Zero(6);
